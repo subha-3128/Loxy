@@ -9,6 +9,11 @@
 </p>
 
 <p align="center">
+  <a href="https://loxy-pied.vercel.app/"><img src="https://img.shields.io/badge/live_demo-loxy--pied.vercel.app-8B5CF6?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo"></a>
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/PWA-installable-08080C?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/react-19-blue.svg" alt="React 19"></a>
   <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/typescript-6-blue.svg" alt="TypeScript 6"></a>
   <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/crypto-AES--GCM--256-8B5CF6.svg" alt="AES-GCM-256"></a>
@@ -18,53 +23,71 @@
 
 ---
 
+> 🌐 **Live Production Application**: **[https://loxy-pied.vercel.app/](https://loxy-pied.vercel.app/)**
+
+---
+
 ## Overview
 
-**Loxy** is a secure, personal password vault designed to keep your credentials safe through strict client-side cryptography. Most traditional web vaults transmit or process authentication secrets on server-side infrastructure; Loxy eliminates this trust assumption by enforcing a **zero-knowledge architecture**.
+**Loxy** is a modern personal password vault designed to keep your digital credentials secure through strict, client-side zero-knowledge cryptography. While traditional cloud password managers process or hold authentication secrets on centralized servers, Loxy eliminates third-party trust assumptions entirely.
 
-All sensitive data—passwords, usernames, URLs, and notes—are encrypted and decrypted directly in your browser using the native Web Crypto API (`SubtleCrypto`). The backend database (Supabase PostgreSQL) only ever receives authenticated AES-GCM ciphertexts and initialization vectors. Even in the event of a full database leak or compromised server, an attacker cannot read your vault secrets without your master password.
+All sensitive records—passwords, usernames, URLs, and notes—are encrypted and decrypted strictly inside your browser using the native Web Crypto API (`SubtleCrypto`). The remote PostgreSQL database (hosted on Supabase) only ever receives authenticated AES-GCM ciphertexts and random initialization vectors. Even if the backend database were entirely leaked or compromised, an attacker cannot decipher a single credential without your client-side master password.
 
-Loxy was built for developers, security-conscious individuals, and teams who want a lightweight, modern credential manager without unnecessary bloat, subscription fees, or proprietary lock-in.
+Loxy was built for developers, security-conscious individuals, and privacy advocates who want a lightweight, modern credential manager without subscriptions, proprietary lock-in, or telemetry bloat.
 
 ---
 
 ## Features
 
-- **Zero-Knowledge Client-Side Encryption**
-  - Cryptographic key derivation via **PBKDF2** (SHA-256, 100,000 iterations, 32-byte cryptographically secure random salt).
-  - Symmetric authenticated encryption via **AES-GCM (256-bit)** with random 12-byte initialization vectors (IVs) generated per item.
-  - Plaintext credentials never leave the client's local memory.
+- **Zero-Knowledge Client-Side Cryptography**
+  - Key derivation via **PBKDF2** (SHA-256, 100,000 iterations, 32-byte cryptographically secure random salt).
+  - Symmetric authenticated encryption via **AES-GCM (256-bit)** using unique 12-byte initialization vectors (IVs) generated per credential.
+  - Plaintext passwords and secrets never leave the client's local memory.
 
 - **Independent Master Password & Verification Sentinel**
   - Master password remains strictly local and is never transmitted, stored, or hashed in the database.
-  - Verification sentinel token enables client-side password verification without persisting credentials.
-  - Full vault re-encryption support when changing your master password.
+  - Client-side sentinel token verification confirms master password accuracy without persisting sensitive keys.
+  - Complete vault re-encryption support when changing your master password.
+
+- **Dark & Light Mode with System Sync**
+  - Instant one-click toggle in the navigation bar (Sun/Moon).
+  - Dedicated **Appearance & Theme** settings with Dark (obsidian purple), Light (clean high-contrast slate), and System auto-detection.
+  - Dynamically updates `<meta name="theme-color">` to match your device status bar.
 
 - **WebAuthn Biometric Quick Unlock**
   - Hardware-backed authentication (macOS Touch ID, Windows Hello, Face ID) via the WebAuthn platform authenticator.
-  - Securely encrypts and restores the vault key locally for seamless re-entry without re-typing long master passwords.
+  - Securely encrypts and uncurtains the vault key locally for seamless biometric access without re-typing master passwords.
+
+- **Progressive Web App (PWA) with Instant Offline App-Shell**
+  - Fully installable on macOS, Windows, iOS, and Android as a native standalone application.
+  - High-performance Service Worker serves the application shell in **<10ms** via cache-first stale-while-revalidate.
+  - Pre-cached Google Fonts and compressed assets for zero layout shift.
+  - Strict security boundary: Supabase API and external requests are network-only and never cached unencrypted.
 
 - **Breached Password Scanner (HaveIBeenPwned k-Anonymity)**
   - Audits vault passwords against billions of compromised credentials exposed in public data leaks.
   - Implements mathematical **k-Anonymity**: only the first 5 characters of the SHA-1 password hash are sent over the network; zero passwords or full hashes are ever exposed.
 
 - **30-Second Auto-Clearing Clipboard**
-  - One-click copy for usernames and passwords.
-  - Passwords automatically wipe from the operating system clipboard after 30 seconds to prevent background clipboard snooping.
+  - One-click copy for usernames and passwords with visual feedback.
+  - Copied passwords automatically wipe from the operating system clipboard after 30 seconds to prevent background clipboard snooping.
 
 - **CSV Password Importer**
   - Seamless migration from **Google Chrome**, **Bitwarden**, **1Password**, and **LastPass**.
-  - Client-side CSV parsing, validation, batch AES-GCM encryption, and direct synchronization to the vault.
+  - Browser-side CSV parsing, validation, batch AES-GCM 256 encryption, and direct synchronization to the vault.
 
 - **Cryptographically Secure Password Generator**
-  - Uses `crypto.getRandomValues()` to eliminate pseudo-random bias.
-  - Configurable length (12–32 characters) and character sets (uppercase, lowercase, numbers, symbols).
-  - Real-time entropy evaluation and visual strength scoring (Weak, Fair, Strong, Very Strong).
+  - Generates passwords using `crypto.getRandomValues()` to eliminate pseudo-random bias.
+  - Customizable length (12–32 characters) and character sets (uppercase, lowercase, numbers, symbols).
+  - Real-time entropy evaluation and visual strength meter (Weak, Fair, Strong, Very Strong).
+
+- **Streamlined Add & Edit Password Flow**
+  - Clean, distraction-free modal interface pairing Website Name with URL, Username, and Password Generator.
+  - Clutter-free design with category selector removed for faster entry.
 
 - **Security Health Dashboard**
   - Live client-side audit of your vault security posture.
-  - Tracks weak passwords, reused credentials across accounts, and known data breaches.
-  - Quick-action shortcuts to update vulnerable credentials directly.
+  - Evaluates weak passwords, reused credentials across accounts, and public data breaches with quick-change shortcuts.
 
 - **Configurable Inactivity Auto-Lock**
   - Automatically wipes decrypted secrets and derived keys from memory after a specified inactivity duration (5, 15, 30 minutes, or Never).
@@ -77,11 +100,6 @@ Loxy was built for developers, security-conscious individuals, and teams who wan
 - **Encrypted JSON Vault Backup**
   - Export full zero-knowledge encrypted JSON vault backups (containing salts, verification tokens, and encrypted items) for offline archiving.
 
-- **Progressive Web App (PWA) & Offline Shell**
-  - Installable as a standalone native app on macOS, Windows, iOS, and Android.
-  - Custom Service Worker precaches the cryptographic application shell for instant offline loading anywhere.
-  - Zero sensitive database credentials or API calls are ever stored in unencrypted Service Worker caches.
-
 - **Offline Developer Sandbox Fallback**
   - If Supabase environment variables are omitted, Loxy seamlessly boots in local encrypted storage mode for testing.
 
@@ -92,14 +110,15 @@ Loxy was built for developers, security-conscious individuals, and teams who wan
 | Category | Technology | Description |
 | :--- | :--- | :--- |
 | **Frontend Framework** | [React 19](https://react.dev/) | Component-based UI library |
-| **Build Tool & Bundler** | [Vite 8](https://vite.dev/) | Next-generation frontend tooling with Rolldown manual chunk splitting |
+| **Build Tool & Bundler** | [Vite 8](https://vite.dev/) | Next-generation frontend tooling with Rolldown vendor chunk splitting |
 | **Language** | [TypeScript 6](https://www.typescriptlang.org/) | Strongly typed JavaScript |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Modern utility-first CSS framework |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Modern utility-first CSS with dark/light mode design tokens |
 | **Cryptography** | [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) | Native browser cryptographic primitives (`SubtleCrypto`: PBKDF2, AES-GCM, SHA-1, SHA-256) |
 | **Authentication** | [Supabase Auth](https://supabase.com/docs/guides/auth) & [WebAuthn](https://w3c.github.io/webauthn/) | Google OAuth 2.0 and platform biometric authentication |
 | **Database** | [PostgreSQL (Supabase)](https://supabase.com/docs/guides/database) | Cloud-hosted relational database with Row Level Security (RLS) |
 | **Icons** | [Lucide React](https://lucide.dev/) | Clean, customizable SVG icon system |
 | **Breach Intelligence** | [HaveIBeenPwned API](https://haveibeenpwned.com/API/v3#PwnedPasswords) | Range search k-Anonymity password breach auditing |
+| **Hosting & CDN** | [Vercel](https://vercel.com/) | Global edge network with automatic SPA rewrite routing |
 | **Test Runner** | [Vitest 5](https://vitest.dev/) | Vite-native unit testing framework |
 | **Linter** | [Oxlint](https://oxc.rs/) | High-performance Rust-based JavaScript/TypeScript linter |
 
@@ -109,13 +128,15 @@ Loxy was built for developers, security-conscious individuals, and teams who wan
 
 ```mermaid
 flowchart TD
-    subgraph BrowserClient ["Browser Client (Local Machine)"]
+    subgraph BrowserClient ["Browser Client (Local Machine / PWA)"]
         User(["User"])
-        UI["React 19 UI (Tailwind v4)"]
+        UI["React 19 UI (Dark / Light Mode)"]
+        Theme["ThemeContext (Dark / Light / System)"]
         CryptoSubtle["Web Crypto API (SubtleCrypto)"]
         MemoryState["In-Memory Plaintext State (Wiped on Lock)"]
         BioAuth["WebAuthn Biometrics (Touch ID / Face ID)"]
         ClipMgr["Secure Clipboard Manager (30s Purge)"]
+        SW["Service Worker (Cache-First Shell <10ms)"]
     end
 
     subgraph ExternalApis ["External Services"]
@@ -132,6 +153,8 @@ flowchart TD
     end
 
     User -->|Interacts| UI
+    UI --> Theme
+    SW -.->|Pre-caches App Shell| UI
     UI -->|Google OAuth Request| AuthServer
     AuthServer -->|OAuth 2.0 Flow| GoogleOAuth
     
@@ -153,10 +176,10 @@ flowchart TD
 
 ### Data Flow
 
-1. **Authentication**: The user logs in via Google OAuth. The Supabase Auth token identifies the session and enforces Postgres Row Level Security (`auth.uid() = user_id`).
-2. **Key Derivation**: The user supplies their master password. Loxy fetches their 32-byte salt from `vault_settings`, executes 100,000 PBKDF2 iterations with SHA-256 via Web Crypto, and produces an exportable 256-bit AES-GCM key.
-3. **Master Password Verification**: The derived key decrypts the sentinel string stored in `verification_data`. If it matches `LOXY_VAULT_KEY_VALID_V1`, the vault is unlocked.
-4. **Item Decryption**: Encrypted items are fetched from `vault_items`. Each item is decrypted locally using its unique 12-byte initialization vector (IV) and the derived AES key. Decrypted records exist solely in React component state.
+1. **Authentication**: The user signs in via Google OAuth. The Supabase Auth JWT establishes identity and enforces database Row Level Security (`auth.uid() = user_id`).
+2. **Key Derivation**: The user supplies their master password. Loxy fetches their 32-byte salt from `vault_settings`, runs 100,000 PBKDF2 iterations using SHA-256 via Web Crypto, and produces an exportable 256-bit AES-GCM key.
+3. **Master Password Verification**: The derived key attempts to decrypt the sentinel token stored in `verification_data`. If the decrypted result matches `LOXY_VAULT_KEY_VALID_V1`, the vault unlocks.
+4. **Item Decryption**: Encrypted rows are fetched from `vault_items`. Each item is decrypted locally in-memory using its unique 12-byte initialization vector (IV) and the derived AES key. Decrypted credentials exist exclusively in component memory.
 5. **Item Creation & Modification**: When adding or updating an item, plaintext data is serialized into JSON, encrypted with AES-GCM, and bundled into `{ ciphertext, iv }`. Only this ciphertext payload is transmitted to Supabase.
 6. **Vault Locking**: On timeout or user lock, the derived key and in-memory plaintext state are set to `null`, completely clearing sensitive material from memory.
 
@@ -166,11 +189,18 @@ flowchart TD
 
 ```text
 Loxy/
-├── public/                       # Static public assets (favicons, manifest icons)
-│   ├── favicon.svg
-│   └── icons.svg
+├── public/                       # Static public assets
+│   ├── favicon.svg               # Scalable brand vector icon
+│   ├── logo.png                  # High-resolution optimized brand logo (77 KB)
+│   ├── icon-192.png              # PWA manifest 192x192 icon
+│   ├── icon-512.png              # PWA manifest 512x512 icon
+│   ├── icon-maskable.png         # PWA adaptive maskable icon
+│   ├── manifest.webmanifest      # Progressive Web App manifest
+│   ├── sw.js                     # Cache-first service worker for instant PWA boot
+│   └── _redirects                # Netlify / Cloudflare SPA rewrite routing
 ├── src/
-│   ├── assets/                   # Bundled UI assets
+│   ├── assets/                   # Bundled application assets
+│   │   ├── logo.png
 │   │   ├── hero.png
 │   │   ├── react.svg
 │   │   └── vite.svg
@@ -178,9 +208,9 @@ Loxy/
 │   │   ├── auth/
 │   │   │   └── LoginView.tsx     # Google OAuth login interface
 │   │   ├── layout/
-│   │   │   ├── Navbar.tsx        # Top bar with search (⌘K), lock indicator, and profile
+│   │   │   ├── Navbar.tsx        # Top bar with search (⌘K), theme toggle, lock indicator, PWA install
 │   │   │   ├── Sidebar.tsx       # Primary navigation (All, Favorites, Security, Settings)
-│   │   │   └── MobileNav.tsx     # Responsive bottom navigation bar
+│   │   │   └── MobileNav.tsx     # Responsive bottom mobile navigation bar
 │   │   ├── password/
 │   │   │   ├── PasswordCard.tsx          # Credential card with 30s copy & favorite toggle
 │   │   │   ├── PasswordModal.tsx         # Add/Edit credential form with password generator
@@ -189,7 +219,7 @@ Loxy/
 │   │   ├── security/
 │   │   │   └── SecurityDashboard.tsx     # Health score, breach scanner, and weak password audit
 │   │   ├── settings/
-│   │   │   └── SettingsView.tsx          # Master password change, biometrics, CSV import, export
+│   │   │   └── SettingsView.tsx          # Master password change, theme, biometrics, CSV import, export
 │   │   ├── ui/
 │   │   │   ├── Modal.tsx                 # Base accessible modal wrapper
 │   │   │   └── Toast.tsx                 # Ephemeral notification context and toasts
@@ -197,6 +227,7 @@ Loxy/
 │   │       └── VaultUnlockModal.tsx      # Master password unlock & biometric prompt
 │   ├── contexts/                 # Global state management
 │   │   ├── AuthContext.tsx       # Supabase session and user state
+│   │   ├── ThemeContext.tsx      # Dark, Light, and System theme management
 │   │   └── VaultContext.tsx      # Vault lifecycle, cryptographic state, and item mutations
 │   ├── lib/                      # Core business logic & cryptographic primitives
 │   │   ├── biometrics.ts         # WebAuthn platform authenticator integration
@@ -209,6 +240,7 @@ Loxy/
 │   │   ├── csvImporter.test.ts   # Vitest suite for CSV parsing
 │   │   ├── passwordGenerator.ts  # Web Crypto random generator & entropy scoring
 │   │   ├── passwordGenerator.test.ts # Vitest suite for password generator
+│   │   ├── pwa.ts                # Service worker registration & install prompt hooks
 │   │   └── supabase.ts           # Supabase client instantiation & database access layer
 │   ├── types/
 │   │   └── vault.ts              # TypeScript interfaces for vault items, crypto, and auth
@@ -216,13 +248,14 @@ Loxy/
 │   │   └── supabase/
 │   │       └── client.ts         # SSR-ready browser Supabase client utility
 │   ├── App.tsx                   # Main root view router and layout coordinator
-│   ├── index.css                 # Tailwind CSS v4 directives and custom scrollbars
+│   ├── index.css                 # Tailwind CSS v4 directives, dark/light variables & scrollbars
 │   └── main.tsx                  # Application bootstrap entry point
 ├── supabase/
 │   └── schema.sql                # PostgreSQL tables, RLS policies, indexes, and triggers
 ├── .env.example                  # Environment variable configuration template
 ├── package.json                  # Dependencies, devDependencies, and npm scripts
 ├── tsconfig.json                 # TypeScript compiler configuration
+├── vercel.json                   # Vercel SPA rewrite configuration
 └── vite.config.ts                # Vite config with Tailwind v4 & Rolldown chunk splitting
 ```
 
@@ -230,12 +263,12 @@ Loxy/
 
 ## Prerequisites
 
-Before running Loxy, verify that your environment meets the following requirements:
+Before running Loxy locally or in production, verify your environment meets the following requirements:
 
 - **Node.js**: `v18.0.0` or higher (Node `v20+` or `v22+` recommended; Web Crypto API is native).
 - **Package Manager**: `npm` (v9+ or v10+), `pnpm`, or `yarn`.
 - **Supabase Account**: A Supabase project with PostgreSQL and Supabase Auth enabled.
-- **Google Cloud Console Account**: For configuring Google OAuth 2.0 credentials in Supabase.
+- **Google Cloud Console**: An OAuth 2.0 Client ID and Secret for Google OAuth provider setup.
 
 ---
 
@@ -279,7 +312,7 @@ VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-> **Fallback Mode**: If Loxy is launched without valid Supabase credentials, it automatically operates in **Local Encrypted Sandbox Mode**, saving AES-GCM encrypted records in local storage for demonstration and offline testing.
+> **Fallback Mode**: If Loxy is launched without Supabase credentials, it automatically operates in **Local Encrypted Sandbox Mode**, saving AES-GCM encrypted records in local storage for offline demonstration and development.
 
 ---
 
@@ -362,7 +395,7 @@ Stores the encrypted vault items. Sensitive credentials are never stored in plai
 | `id` | `UUID PRIMARY KEY` | Unique identifier generated via `gen_random_uuid()` |
 | `user_id` | `UUID NOT NULL` | References `auth.users.id` (ON DELETE CASCADE) |
 | `encrypted_data` | `TEXT NOT NULL` | Stringified JSON `{ ciphertext: string, iv: string }` |
-| `category` | `TEXT NOT NULL` | Category tag (default `'Other'`) |
+| `category` | `TEXT NOT NULL` | Internal category tag (default `'Other'`) |
 | `is_favorite` | `BOOLEAN NOT NULL` | Pinned favorite flag (default `false`) |
 | `created_at` | `TIMESTAMPTZ` | Creation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | Last modification timestamp |
@@ -441,17 +474,17 @@ Loxy is a client-side single-page application that connects to two external API 
 ## Usage
 
 ### 1. First-Time Setup
-1. Open the application at [http://localhost:5173](http://localhost:5173).
+1. Open the application at **[https://loxy-pied.vercel.app/](https://loxy-pied.vercel.app/)** (or `http://localhost:5173` locally).
 2. Click **Continue with Google** to complete OAuth sign-in.
-3. In the setup modal, define a strong **Master Password** and choose whether to enable **Touch ID / Biometric unlock**.
+3. In the setup modal, define a strong **Master Password** and optionally check **Enable Touch ID / Biometric unlock**.
 4. Click **Create & Secure Vault**.
 
 ### 2. Adding and Managing Passwords
 1. Click **Add Password** from the sidebar or top navigation.
-2. Enter the website name, username/email, and password.
+2. Enter the website name, URL, and username/email.
 3. Use the built-in **Password Generator** to create high-entropy passwords with custom length and character sets.
-4. Select a category (*Development, Work, Social, Banking, Shopping, College, Entertainment, Other*) and optional notes.
-5. Click **Save Encrypted Password**.
+4. Add optional notes and star as a favorite if desired.
+5. Click **Save Password**.
 
 ### 3. Importing Passwords via CSV
 1. Navigate to **Settings** > **Import Passwords (CSV)**.
@@ -466,28 +499,33 @@ Loxy is a client-side single-page application that connects to two external API 
 4. Click **Change** next to any compromised credential to update it immediately.
 
 ### 5. Locking and Unlocking the Vault
-- Click **Lock Vault** in the sidebar at any time to wipe the key from memory.
+- Click **Lock Vault** in the sidebar or top bar at any time to wipe the key from memory.
 - Unlock using your master password or the **Unlock with Touch ID / Biometrics** button.
 
 ---
 
 ## Deployment
 
-Loxy builds as a fully static Single Page Application (SPA) in the `dist/` directory and can be deployed to any modern static hosting provider (e.g., **Vercel**, **Netlify**, **Cloudflare Pages**, or **GitHub Pages**).
+Loxy is deployed to production on **Vercel** with continuous deployment from the GitHub repository:
 
-### Deployment Steps (e.g., Vercel / Netlify)
+- 🚀 **Live Production URL**: **[https://loxy-pied.vercel.app/](https://loxy-pied.vercel.app/)**
+- **Hosting Provider**: [Vercel](https://vercel.com/)
+- **Configuration**: [`vercel.json`](./vercel.json) (SPA rewrite routing ensures deep linking and refreshing work without 404s).
 
-1. Connect your GitHub repository to your hosting provider.
+### Deployment Steps (from scratch)
+
+1. Connect your GitHub repository (`subha-3128/Loxy`) to **Vercel**.
 2. Configure build settings:
    - **Framework Preset**: `Vite`
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
-3. Configure Environment Variables in the hosting dashboard:
-   - `VITE_SUPABASE_URL`: `https://your-project.supabase.co`
+3. Configure Environment Variables in the Vercel dashboard:
+   - `VITE_SUPABASE_URL`: `https://prblywfioszvmjvydpyp.supabase.co`
    - `VITE_SUPABASE_ANON_KEY`: `your-supabase-anon-key`
 4. **Update Supabase Redirect URLs**:
-   - In your Supabase Dashboard, navigate to **Authentication** > **URL Configuration**.
-   - Add your production domain (e.g., `https://your-app.vercel.app`) to **Redirect URLs**.
+   - In Supabase Dashboard, navigate to **Authentication** > **URL Configuration**.
+   - Set **Site URL** to `https://loxy-pied.vercel.app`.
+   - Add `https://loxy-pied.vercel.app/**` to **Redirect URLs**.
 
 ---
 
@@ -511,9 +549,9 @@ The following scripts are defined in `package.json`:
 - **Cause**: Google OAuth is not enabled in your Supabase project.
 - **Fix**: In the Supabase Dashboard, go to **Authentication** > **Providers** > **Google**, toggle it **ON**, and enter your Google Client ID and Client Secret from Google Cloud Console.
 
-### 2. Redirect Loop or OAuth Callback Failure
-- **Cause**: The current application URL is not registered in Supabase authorized redirect URLs.
-- **Fix**: Add `http://localhost:5173` (for development) and your production URL to **Authentication** > **URL Configuration** > **Redirect URLs** in Supabase.
+### 2. Redirect Loop or `localhost refused to connect` after Login
+- **Cause**: Supabase default Site URL is set to `localhost` and doesn't recognize your live domain.
+- **Fix**: Go to **Authentication** > **URL Configuration** in Supabase. Set **Site URL** to `https://loxy-pied.vercel.app` and add `https://loxy-pied.vercel.app/**` under **Redirect URLs**.
 
 ### 3. Forgot Master Password
 - **Cause**: Zero-knowledge design principle.
@@ -521,7 +559,7 @@ The following scripts are defined in `package.json`:
 
 ### 4. Touch ID / Biometrics Not Showing or Failing
 - **Cause**: WebAuthn requires a secure origin (`https://` or `localhost`) and hardware authenticator support.
-- **Fix**: Ensure you are running on `localhost` or HTTPS, and that your browser has permission to access system biometric features.
+- **Fix**: Ensure you are accessing via HTTPS (`https://loxy-pied.vercel.app`) or `localhost`, and that your browser has permission to access system biometric features.
 
 ### 5. HaveIBeenPwned Scan Offline / Network Failure
 - **Cause**: Network block or firewall preventing connections to `api.pwnedpasswords.com`.
@@ -574,3 +612,4 @@ Contributions are welcome. Please adhere to the following workflow:
 
 - **Subhajit Bepari** ([sb3128@srmist.edu.in](mailto:sb3128@srmist.edu.in))
 - GitHub Repository: [https://github.com/subha-3128/Loxy.git](https://github.com/subha-3128/Loxy.git)
+- Live Production App: [https://loxy-pied.vercel.app/](https://loxy-pied.vercel.app/)
