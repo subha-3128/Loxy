@@ -22,7 +22,6 @@ import {
   AlertCircle,
   LogOut,
   Fingerprint,
-  FileSpreadsheet,
   Smartphone,
   Laptop,
   Sun,
