@@ -11,7 +11,6 @@ import {
   Edit2,
   Trash2,
   Calendar,
-  Tag,
   Globe,
   FileText,
 } from 'lucide-react';
@@ -154,21 +153,12 @@ export const PasswordDetailsModal: React.FC<PasswordDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Category & Timestamps */}
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="p-3 rounded-lg bg-[#17171D] border border-[#27272F]">
-            <span className="text-[11px] text-[#71717A] flex items-center gap-1 mb-1">
-              <Tag className="w-3.5 h-3.5" /> Category
-            </span>
-            <span className="font-medium text-[#F7F7FA]">{item.category}</span>
-          </div>
-
-          <div className="p-3 rounded-lg bg-[#17171D] border border-[#27272F]">
-            <span className="text-[11px] text-[#71717A] flex items-center gap-1 mb-1">
-              <Calendar className="w-3.5 h-3.5" /> Updated
-            </span>
-            <span className="text-[#A1A1AA]">{formatDate(item.updated_at)}</span>
-          </div>
+        {/* Timestamps */}
+        <div className="p-3 rounded-lg bg-[#17171D] border border-[#27272F] text-xs">
+          <span className="text-[11px] text-[#71717A] flex items-center gap-1 mb-1">
+            <Calendar className="w-3.5 h-3.5" /> Updated
+          </span>
+          <span className="text-[#A1A1AA]">{formatDate(item.updated_at)}</span>
         </div>
 
         {/* Notes */}

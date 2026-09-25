@@ -70,7 +70,6 @@ const LoxyApp: React.FC = () => {
         item =>
           item.website.toLowerCase().includes(q) ||
           item.username.toLowerCase().includes(q) ||
-          item.category.toLowerCase().includes(q) ||
           (item.url && item.url.toLowerCase().includes(q))
       );
     }
@@ -246,7 +245,7 @@ const LoxyApp: React.FC = () => {
                     </h3>
                     <p className="text-xs text-[#A1A1AA] mt-1.5 leading-relaxed max-w-xs mx-auto">
                       {searchQuery
-                        ? `No credentials matched "${searchQuery}". Try a different keyword or category.`
+                        ? `No credentials matched "${searchQuery}". Try a different keyword.`
                         : currentView === 'favorites'
                         ? 'Click the star icon on any password in your vault to pin it to your favorites.'
                         : 'Start protecting your accounts by adding your first password with zero-knowledge encryption.'}

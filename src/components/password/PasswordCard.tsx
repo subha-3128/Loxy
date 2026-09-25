@@ -99,14 +99,9 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm text-[#F7F7FA] truncate">
-                {item.website}
-              </h3>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1D1D24] text-[#A1A1AA] border border-[#27272F] shrink-0 font-medium">
-                {item.category}
-              </span>
-            </div>
+            <h3 className="font-semibold text-sm text-[#F7F7FA] truncate">
+              {item.website}
+            </h3>
             <p className="text-xs text-[#A1A1AA] truncate mt-0.5 font-mono">
               {item.username}
             </p>
