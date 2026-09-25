@@ -311,4 +311,46 @@ export const authService = {
     const demo = localStorage.getItem('loxy_demo_user');
     return demo ? JSON.parse(demo) : null;
   },
+
+  async deleteAccount(userId: string): Promise<boolean> {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { error: rpcError } = await supabase.rpc('delete_user_account');
+        if (!rpcError) {
+          await supabase.auth.signOut();
+          this.clearLocalData(userId);
+          return true;
+        }
+      } catch (e) {
+        console.warn('RPC delete_user_account failed, attempting fallback table deletion', e);
+      }
+
+      try {
+        await supabase.from('vault_items').delete().eq('user_id', userId);
+        await supabase.from('vault_settings').delete().eq('user_id', userId);
+        await supabase.from('profiles').delete().eq('id', userId);
+      } catch (err) {
+        console.error('Error deleting user rows:', err);
+      }
+
+      await supabase.auth.signOut();
+      this.clearLocalData(userId);
+      return true;
+    } else {
+      this.clearLocalData(userId);
+      return true;
+    }
+  },
+
+  clearLocalData(userId: string) {
+    try {
+      localStorage.removeItem(getLocalKey('items', userId));
+      localStorage.removeItem(getLocalKey('settings', userId));
+      localStorage.removeItem(`loxy_biometric_${userId}`);
+      localStorage.removeItem('loxy_demo_user');
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('Error clearing local storage:', e);
+    }
+  },
 };

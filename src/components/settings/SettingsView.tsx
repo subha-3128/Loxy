@@ -29,9 +29,13 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Trash2,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { subscribeToInstallPrompt, promptPwaInstall } from '../../lib/pwa';
 import { useTheme } from '../../contexts/ThemeContext';
+import { Modal } from '../ui/Modal';
 
 /* ─── tiny helpers ─────────────────────────────────────── */
 
@@ -107,7 +111,7 @@ function RowItem({
 /* ─── Main Component ────────────────────────────────────── */
 
 export const SettingsView: React.FC = () => {
-  const { user, signOut, isSupabaseConnected } = useAuth();
+  const { user, signOut, deleteAccount, isSupabaseConnected } = useAuth();
   const { theme, setTheme } = useTheme();
   const {
     autoLockMinutes,
@@ -143,6 +147,29 @@ export const SettingsView: React.FC = () => {
   // PWA
   const [canInstallPwa, setCanInstallPwa] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+
+  // Delete account modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (confirmDeleteText !== 'DELETE') return;
+    setIsDeletingAccount(true);
+    try {
+      const ok = await deleteAccount();
+      if (ok) {
+        showToast('Account permanently deleted', 'success');
+        setIsDeleteModalOpen(false);
+      } else {
+        showToast('Failed to delete account. Please try again.', 'error');
+      }
+    } catch {
+      showToast('Error deleting account', 'error');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeToInstallPrompt((can) => {
@@ -450,9 +477,33 @@ export const SettingsView: React.FC = () => {
                 {user?.email}
               </p>
             </div>
-            <button onClick={() => signOut()} className="settings-btn-danger">
+            <button onClick={() => signOut()} className="settings-btn-ghost">
               <LogOut className="w-3.5 h-3.5" />
               Sign Out
+            </button>
+          </div>
+
+          <div className="s-divider" />
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-red-400 flex items-center gap-1.5">
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Account
+              </p>
+              <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Permanently delete your account and erase all zero-knowledge encrypted vault credentials.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmDeleteText('');
+                setIsDeleteModalOpen(true);
+              }}
+              className="settings-btn-danger shrink-0 self-start sm:self-center"
+            >
+              Delete Account
             </button>
           </div>
         </SectionCard>
@@ -732,6 +783,77 @@ export const SettingsView: React.FC = () => {
         </SectionCard>
 
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeletingAccount) setIsDeleteModalOpen(false);
+        }}
+        title="Delete Account"
+        description="Permanently delete your account and all stored passwords"
+        maxWidth="max-w-md"
+      >
+        <div className="p-6 space-y-4">
+          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3 text-red-400">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
+            <div className="text-xs leading-relaxed">
+              <span className="font-semibold block mb-0.5">Warning: This action is permanent</span>
+              All your encrypted credentials, master password setup, and account data will be permanently wiped from the database. This cannot be undone.
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+              To confirm deletion, please type <span className="font-mono font-bold text-red-400">DELETE</span> below:
+            </label>
+            <input
+              type="text"
+              value={confirmDeleteText}
+              onChange={(e) => setConfirmDeleteText(e.target.value)}
+              placeholder="Type DELETE"
+              disabled={isDeletingAccount}
+              className="settings-input font-mono"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              disabled={isDeletingAccount}
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="settings-btn-ghost"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={confirmDeleteText !== 'DELETE' || isDeletingAccount}
+              onClick={handleDeleteAccount}
+              className="settings-btn-danger flex items-center gap-2"
+              style={{
+                background: confirmDeleteText === 'DELETE' ? 'rgba(239, 68, 68, 0.9)' : undefined,
+                color: confirmDeleteText === 'DELETE' ? '#ffffff' : undefined,
+                padding: '8px 16px',
+                fontSize: '13px',
+              }}
+            >
+              {isDeletingAccount ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Deleting Account...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Permanently Delete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
