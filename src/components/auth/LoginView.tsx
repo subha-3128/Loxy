@@ -42,9 +42,6 @@ export const LoginView: React.FC = () => {
             <p className="text-sm font-medium text-[#A1A1AA] mt-1.5">
               Your keys. Your vault.
             </p>
-            <p className="text-xs text-[#71717A] mt-2 max-w-xs leading-relaxed">
-              Zero-knowledge personal password vault. Client-side AES-GCM 256 encryption. Plaintext never leaves your machine.
-            </p>
           </div>
 
           {/* Error Message */}
