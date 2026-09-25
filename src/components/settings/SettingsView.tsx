@@ -28,9 +28,87 @@ import {
   Sun,
   Moon,
   Monitor,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { subscribeToInstallPrompt, promptPwaInstall, isAppInstalled } from '../../lib/pwa';
 import { useTheme } from '../../contexts/ThemeContext';
+
+/* ─── tiny helpers ─────────────────────────────────────── */
+
+function SectionCard({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  return (
+    <div
+      className="settings-card"
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SectionHeader({
+  icon: Icon,
+  label,
+  badge,
+  badgeOk,
+}: {
+  icon: React.ElementType;
+  label: string;
+  badge?: string;
+  badgeOk?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        <div className="settings-icon-wrap">
+          <Icon className="w-4 h-4" />
+        </div>
+        <h2 className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          {label}
+        </h2>
+      </div>
+      {badge && (
+        <span className={`settings-badge ${badgeOk ? 'settings-badge--ok' : 'settings-badge--neutral'}`}>
+          {badge}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function RowItem({
+  title,
+  subtitle,
+  right,
+}: {
+  title: string;
+  subtitle?: string;
+  right: React.ReactNode;
+}) {
+  return (
+    <div className="settings-row">
+      <div className="flex-1 min-w-0 pr-4">
+        <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{title}</p>
+        {subtitle && (
+          <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
+        )}
+      </div>
+      <div className="shrink-0">{right}</div>
+    </div>
+  );
+}
+
+/* ─── Main Component ────────────────────────────────────── */
 
 export const SettingsView: React.FC = () => {
   const { user, signOut, isSupabaseConnected } = useAuth();
@@ -50,19 +128,23 @@ export const SettingsView: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwFormOpen, setPwFormOpen] = useState(false);
 
-  // Biometrics State
+  // Biometrics
   const [canUseBio, setCanUseBio] = useState(false);
   const [bioEnabled, setBioEnabled] = useState(false);
   const [bioPasswordPrompt, setBioPasswordPrompt] = useState(false);
   const [bioPassword, setBioPassword] = useState('');
 
-  // CSV Import State
+  // CSV Import
   const [isImporting, setIsImporting] = useState(false);
   const [importStats, setImportStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // PWA State
+  // PWA
   const [canInstallPwa, setCanInstallPwa] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
@@ -89,10 +171,9 @@ export const SettingsView: React.FC = () => {
     }
   }, [user]);
 
-  const handleAutoLockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = parseInt(e.target.value) as AutoLockDuration;
-    setAutoLockMinutes(val);
-    showToast(`Auto-lock set to ${val === 0 ? 'Never' : val + ' minutes'}`, 'info');
+  const handleAutoLockChange = (val: number) => {
+    setAutoLockMinutes(val as AutoLockDuration);
+    showToast(`Auto-lock: ${val === 0 ? 'Never' : val + ' min'}`, 'info');
   };
 
   const handleToggleBio = async () => {
@@ -109,7 +190,6 @@ export const SettingsView: React.FC = () => {
   const handleConfirmEnableBio = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !bioPassword) return;
-
     const ok = await enableBiometric(user.id, bioPassword);
     if (ok) {
       setBioEnabled(true);
@@ -123,35 +203,22 @@ export const SettingsView: React.FC = () => {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!oldPassword) {
-      setPasswordError('Please enter your current master password.');
-      return;
-    }
-    if (newPassword.length < 8) {
-      setPasswordError('New password must be at least 8 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match.');
-      return;
-    }
-
+    if (!oldPassword) { setPasswordError('Enter your current master password.'); return; }
+    if (newPassword.length < 8) { setPasswordError('New password must be at least 8 characters.'); return; }
+    if (newPassword !== confirmPassword) { setPasswordError('New passwords do not match.'); return; }
     setPasswordError(null);
     setIsChangingPassword(true);
-
     try {
       const ok = await changeMasterPassword(oldPassword, newPassword);
       if (ok) {
-        showToast('Master password changed and vault re-encrypted', 'success');
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        showToast('Master password updated & vault re-encrypted', 'success');
+        setOldPassword(''); setNewPassword(''); setConfirmPassword('');
+        setPwFormOpen(false);
       } else {
-        setPasswordError('Failed to change password. Current password may be incorrect.');
+        setPasswordError('Current password is incorrect.');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error changing master password';
-      setPasswordError(msg);
+      setPasswordError(err instanceof Error ? err.message : 'Error changing password');
     } finally {
       setIsChangingPassword(false);
     }
@@ -178,420 +245,509 @@ export const SettingsView: React.FC = () => {
   const handleCsvFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setIsImporting(true);
     setImportStats(null);
-
     try {
       const text = await file.text();
       const items = parsePasswordCsv(text);
-
-      if (items.length === 0) {
-        showToast('No credentials found in CSV file', 'error');
-        return;
-      }
-
+      if (items.length === 0) { showToast('No credentials found in CSV', 'error'); return; }
       let imported = 0;
       for (const item of items) {
         const added = await addItem(
-          {
-            website: item.website,
-            username: item.username,
-            password: item.password,
-            url: item.url,
-            notes: item.notes,
-          },
+          { website: item.website, username: item.username, password: item.password, url: item.url, notes: item.notes },
           item.category
         );
         if (added) imported++;
       }
-
-      setImportStats(`Successfully imported ${imported} credentials from ${file.name}`);
+      setImportStats(`${imported} credential${imported !== 1 ? 's' : ''} imported from ${file.name}`);
       showToast(`Imported ${imported} passwords`, 'success');
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to parse CSV';
-      showToast(msg, 'error');
+      showToast(err instanceof Error ? err.message : 'Failed to parse CSV', 'error');
     } finally {
       setIsImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
+  const autoLockOptions = [
+    { value: 5, label: '5 minutes' },
+    { value: 15, label: '15 minutes' },
+    { value: 30, label: '30 minutes' },
+    { value: 0, label: 'Never' },
+  ];
+
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Account Section */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-[#8B5CF6]" />
-            <h2 className="text-sm font-semibold text-[#F7F7FA]">Account</h2>
-          </div>
-          <button
-            onClick={() => signOut()}
-            className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-red-950/40 border border-[#27272F] hover:border-red-800 text-xs font-medium text-[#EF4444] transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </button>
-        </div>
+    <>
+      <style>{`
+        .settings-card {
+          background: var(--card-bg);
+          border: 1px solid var(--card-border);
+          border-radius: 18px;
+          padding: 24px;
+          animation: card-spring-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .settings-icon-wrap {
+          width: 32px; height: 32px;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          background: linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.1) 100%);
+          border: 1px solid rgba(139,92,246,0.3);
+          color: #a78bfa;
+        }
+        .settings-badge {
+          font-size: 11px; font-weight: 600;
+          padding: 3px 10px; border-radius: 999px;
+          border: 1px solid;
+        }
+        .settings-badge--ok {
+          background: rgba(34,197,94,0.1); color: #4ade80; border-color: rgba(34,197,94,0.3);
+        }
+        .settings-badge--neutral {
+          background: rgba(139,92,246,0.1); color: #a78bfa; border-color: rgba(139,92,246,0.2);
+        }
+        .settings-row {
+          display: flex; align-items: center;
+          padding: 14px 16px; border-radius: 12px;
+          background: var(--surface-1);
+          border: 1px solid var(--card-border);
+          transition: border-color 0.2s;
+        }
+        .settings-row + .settings-row { margin-top: 8px; }
+        .settings-row:hover { border-color: rgba(139,92,246,0.25); }
+        .settings-input {
+          width: 100%; height: 40px;
+          padding: 0 12px;
+          border-radius: 10px;
+          background: var(--surface-2);
+          border: 1px solid var(--card-border);
+          font-size: 13px; color: var(--text-primary);
+          outline: none; transition: border-color 0.2s;
+        }
+        .settings-input:focus { border-color: #8B5CF6; }
+        .settings-input::placeholder { color: var(--text-muted); }
+        .settings-btn-primary {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 8px 18px; border-radius: 10px;
+          background: #8B5CF6; color: #fff;
+          font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer;
+          transition: background 0.15s, transform 0.1s;
+        }
+        .settings-btn-primary:hover { background: #7C3AED; }
+        .settings-btn-primary:active { transform: scale(0.97); }
+        .settings-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .settings-btn-ghost {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 8px 14px; border-radius: 10px;
+          background: var(--surface-1);
+          border: 1px solid var(--card-border);
+          color: var(--text-secondary);
+          font-size: 13px; font-weight: 500;
+          cursor: pointer; transition: all 0.15s;
+        }
+        .settings-btn-ghost:hover { border-color: rgba(139,92,246,0.4); color: var(--text-primary); }
+        .settings-btn-ghost:active { transform: scale(0.97); }
+        .settings-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+        .settings-btn-danger {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 6px 12px; border-radius: 8px;
+          background: rgba(239,68,68,0.1);
+          border: 1px solid rgba(239,68,68,0.3);
+          color: #f87171;
+          font-size: 12px; font-weight: 600;
+          cursor: pointer; transition: all 0.15s;
+        }
+        .settings-btn-danger:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.5); }
+        /* Theme picker pills */
+        .theme-pill {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 8px; flex: 1; padding: 14px 8px;
+          border-radius: 12px; border: 2px solid var(--card-border);
+          background: var(--surface-1);
+          color: var(--text-muted);
+          font-size: 12px; font-weight: 600;
+          cursor: pointer; transition: all 0.2s;
+          position: relative; overflow: hidden;
+        }
+        .theme-pill:hover { border-color: rgba(139,92,246,0.4); color: var(--text-primary); }
+        .theme-pill--active {
+          border-color: #8B5CF6;
+          background: rgba(139,92,246,0.12);
+          color: #a78bfa;
+          box-shadow: 0 0 0 1px rgba(139,92,246,0.2), inset 0 0 20px rgba(139,92,246,0.07);
+        }
+        .theme-pill--active::after {
+          content: '✓';
+          position: absolute; top: 5px; right: 7px;
+          font-size: 10px; color: #8B5CF6; font-weight: 700;
+        }
+        /* Auto-lock segment */
+        .lock-seg {
+          display: flex; align-items: center; justify-content: center;
+          flex: 1; padding: 8px 4px;
+          border-radius: 8px; font-size: 12px; font-weight: 600;
+          color: var(--text-muted); cursor: pointer;
+          transition: all 0.15s; white-space: nowrap;
+        }
+        .lock-seg--active {
+          background: rgba(139,92,246,0.18); color: #a78bfa;
+          box-shadow: 0 0 0 1px rgba(139,92,246,0.25);
+        }
+        /* Password input wrapper */
+        .pw-field-wrap { position: relative; }
+        .pw-field-wrap .settings-input { padding-right: 40px; }
+        .pw-eye-btn {
+          position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+          color: var(--text-muted); background: none; border: none;
+          cursor: pointer; padding: 4px; line-height: 0;
+          transition: color 0.15s;
+        }
+        .pw-eye-btn:hover { color: var(--text-primary); }
+        /* Avatar */
+        .settings-avatar {
+          width: 44px; height: 44px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px; font-weight: 700;
+          background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+          color: #fff; flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(139,92,246,0.35);
+        }
+        /* divider */
+        .s-divider { height: 1px; background: var(--card-border); margin: 16px 0; }
+        /* accordion chevron */
+        .pw-accordion-toggle {
+          display: flex; align-items: center; justify-content: space-between;
+          width: 100%; padding: 14px 16px;
+          border-radius: 12px;
+          background: var(--surface-1);
+          border: 1px solid var(--card-border);
+          cursor: pointer; transition: all 0.15s;
+          text-align: left;
+        }
+        .pw-accordion-toggle:hover { border-color: rgba(139,92,246,0.35); }
+        .pw-accordion-body {
+          overflow: hidden;
+          transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;
+        }
+        .pw-accordion-body--open { max-height: 320px; opacity: 1; }
+        .pw-accordion-body--closed { max-height: 0; opacity: 0; }
+      `}</style>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-          <div className="p-3.5 rounded-xl bg-[#17171D] border border-[#27272F]">
-            <span className="text-[11px] text-[#71717A] uppercase tracking-wider block mb-1">
-              Email Address
-            </span>
-            <span className="text-xs font-mono text-[#F7F7FA]">{user?.email}</span>
-          </div>
+      <div className="space-y-4 max-w-2xl pb-10">
 
-          <div className="p-3.5 rounded-xl bg-[#17171D] border border-[#27272F]">
-            <span className="text-[11px] text-[#71717A] uppercase tracking-wider block mb-1">
-              Display Name
-            </span>
-            <span className="text-xs font-medium text-[#F7F7FA]">
-              {user?.user_metadata?.full_name || 'Loxy User'}
-            </span>
-          </div>
-        </div>
-      </div>
+        {/* ── 1. Account ── */}
+        <SectionCard delay={0}>
+          <SectionHeader icon={User} label="Account" />
 
-      {/* Appearance & Theme Settings */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
-        <div className="flex items-center gap-2">
-          <Sun className="w-5 h-5 text-[#8B5CF6]" />
-          <h2 className="text-sm font-semibold text-[#F7F7FA]">Appearance & Theme</h2>
-        </div>
-
-        <p className="text-xs text-[#A1A1AA] leading-relaxed">
-          Customize your interface appearance. Choose between sleek dark mode, clean high-contrast light mode, or match your device system settings.
-        </p>
-
-        <div className="grid grid-cols-3 gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => {
-              setTheme('dark');
-              showToast('Theme set to Dark', 'info');
-            }}
-            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-              theme === 'dark'
-                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
-                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
-            }`}
-          >
-            <Moon className="w-5 h-5" />
-            <span>Dark</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setTheme('light');
-              showToast('Theme set to Light', 'info');
-            }}
-            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-              theme === 'light'
-                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-500 shadow-sm shadow-purple-500/10'
-                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
-            }`}
-          >
-            <Sun className="w-5 h-5" />
-            <span>Light</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setTheme('system');
-              showToast('Theme set to System', 'info');
-            }}
-            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-              theme === 'system'
-                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
-                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
-            }`}
-          >
-            <Monitor className="w-5 h-5" />
-            <span>System</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Vault Security Settings */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-5">
-        <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-[#8B5CF6]" />
-          <h2 className="text-sm font-semibold text-[#F7F7FA]">Vault Security</h2>
-        </div>
-
-        {/* Auto Lock Duration */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#17171D] border border-[#27272F]">
-          <div>
-            <h3 className="text-xs font-semibold text-[#F7F7FA]">Auto-Lock Timer</h3>
-            <p className="text-[11px] text-[#71717A] mt-0.5">
-              Automatically lock and wipe decrypted vault memory when idle.
-            </p>
-          </div>
-          <select
-            value={autoLockMinutes}
-            onChange={handleAutoLockChange}
-            className="h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] focus:border-[#8B5CF6] focus:outline-none transition-colors"
-          >
-            <option value={5}>5 minutes</option>
-            <option value={15}>15 minutes (Default)</option>
-            <option value={30}>30 minutes</option>
-            <option value={0}>Never (Not recommended)</option>
-          </select>
-        </div>
-
-        {/* Biometric Unlock Setting */}
-        {canUseBio && (
-          <div className="p-4 rounded-xl bg-[#17171D] border border-[#27272F] space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xs font-semibold text-[#F7F7FA] flex items-center gap-2">
-                  <Fingerprint className="w-4 h-4 text-[#8B5CF6]" />
-                  <span>Touch ID / Biometric Unlock</span>
-                </h3>
-                <p className="text-[11px] text-[#71717A] mt-0.5">
-                  Unlock your vault using device biometrics instead of typing your master password every time.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleToggleBio}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                  bioEnabled
-                    ? 'bg-red-950/40 text-red-300 border-red-800/50 hover:bg-red-900/50'
-                    : 'bg-[#8B5CF6] text-white border-transparent hover:bg-[#7C3AED]'
-                }`}
-              >
-                {bioEnabled ? 'Disable' : 'Enable Touch ID'}
-              </button>
+          <div className="flex items-center gap-4">
+            <div className="settings-avatar">
+              {(user?.user_metadata?.full_name || user?.email || 'L')[0].toUpperCase()}
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                {user?.user_metadata?.full_name || 'Loxy User'}
+              </p>
+              <p className="text-xs font-mono truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {user?.email}
+              </p>
+            </div>
+            <button onClick={() => signOut()} className="settings-btn-danger">
+              <LogOut className="w-3.5 h-3.5" />
+              Sign Out
+            </button>
+          </div>
+        </SectionCard>
 
-            {bioPasswordPrompt && (
-              <form onSubmit={handleConfirmEnableBio} className="pt-2 flex items-center gap-2">
-                <input
-                  type="password"
-                  required
-                  placeholder="Verify master password..."
-                  value={bioPassword}
-                  onChange={e => setBioPassword(e.target.value)}
-                  className="h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none flex-1"
-                />
+        {/* ── 2. Appearance ── */}
+        <SectionCard delay={60}>
+          <SectionHeader icon={Sun} label="Appearance" />
+          <div className="flex gap-2">
+            {[
+              { id: 'dark', label: 'Dark', Icon: Moon },
+              { id: 'light', label: 'Light', Icon: Sun },
+              { id: 'system', label: 'System', Icon: Monitor },
+            ].map(({ id, label, Icon: ThemeIcon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => { setTheme(id as 'dark' | 'light' | 'system'); showToast(`Theme: ${label}`, 'info'); }}
+                className={`theme-pill ${theme === id ? 'theme-pill--active' : ''}`}
+              >
+                <ThemeIcon className="w-5 h-5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </SectionCard>
+
+        {/* ── 3. Security ── */}
+        <SectionCard delay={120}>
+          <SectionHeader icon={Shield} label="Vault Security" />
+
+          {/* Auto-lock */}
+          <div className="mb-2">
+            <p className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-muted)' }}>Auto-lock after inactivity</p>
+            <div
+              className="flex gap-1 p-1 rounded-xl"
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)' }}
+            >
+              {autoLockOptions.map(opt => (
                 <button
-                  type="submit"
-                  className="h-9 px-3 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium shrink-0"
+                  key={opt.value}
+                  type="button"
+                  onClick={() => handleAutoLockChange(opt.value)}
+                  className={`lock-seg ${autoLockMinutes === opt.value ? 'lock-seg--active' : ''}`}
                 >
-                  Verify & Register
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="s-divider" />
+
+          {/* Biometrics */}
+          {canUseBio && (
+            <>
+              <RowItem
+                title="Touch ID / Biometric Unlock"
+                subtitle="Unlock vault using device biometrics instead of typing your master password."
+                right={
+                  <button
+                    type="button"
+                    onClick={handleToggleBio}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                      bioEnabled
+                        ? 'bg-red-950/30 text-red-400 border-red-800/40 hover:bg-red-950/50'
+                        : 'bg-[#8B5CF6] text-white border-transparent hover:bg-[#7C3AED]'
+                    }`}
+                  >
+                    <Fingerprint className="w-3.5 h-3.5 inline mr-1" />
+                    {bioEnabled ? 'Disable' : 'Enable'}
+                  </button>
+                }
+              />
+              {bioPasswordPrompt && (
+                <form onSubmit={handleConfirmEnableBio} className="flex gap-2 mt-3">
+                  <input
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    placeholder="Verify master password"
+                    value={bioPassword}
+                    onChange={e => setBioPassword(e.target.value)}
+                    className="settings-input flex-1"
+                  />
+                  <button type="submit" className="settings-btn-primary">Verify</button>
+                </form>
+              )}
+              <div className="s-divider" />
+            </>
+          )}
+
+          {/* Change Master Password – accordion */}
+          <div>
+            <button
+              type="button"
+              className="pw-accordion-toggle"
+              onClick={() => { setPwFormOpen(!pwFormOpen); setPasswordError(null); }}
+            >
+              <div className="flex items-center gap-2.5">
+                <KeyRound className="w-4 h-4" style={{ color: '#a78bfa' }} />
+                <div>
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Change Master Password</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Re-encrypts all vault credentials with a new key</p>
+                </div>
+              </div>
+              <ChevronRight
+                className="w-4 h-4 transition-transform duration-300"
+                style={{ color: 'var(--text-muted)', transform: pwFormOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+              />
+            </button>
+
+            <div className={`pw-accordion-body ${pwFormOpen ? 'pw-accordion-body--open' : 'pw-accordion-body--closed'}`}>
+              <form onSubmit={handleChangePassword} className="space-y-2.5 pt-4" autoComplete="off">
+                {passwordError && (
+                  <div className="flex items-start gap-2 p-3 rounded-lg text-xs"
+                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}>
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    {passwordError}
+                  </div>
+                )}
+                <div className="pw-field-wrap">
+                  <input
+                    type={showOld ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Current master password"
+                    value={oldPassword}
+                    onChange={e => setOldPassword(e.target.value)}
+                    className="settings-input"
+                  />
+                  <button type="button" className="pw-eye-btn" onClick={() => setShowOld(!showOld)}>
+                    {showOld ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="pw-field-wrap">
+                    <input
+                      type={showNew ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      placeholder="New password (min 8)"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="settings-input"
+                    />
+                    <button type="button" className="pw-eye-btn" onClick={() => setShowNew(!showNew)}>
+                      {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="pw-field-wrap">
+                    <input
+                      type={showConfirm ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="settings-input"
+                    />
+                    <button type="button" className="pw-eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
+                      {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" disabled={isChangingPassword} className="settings-btn-primary w-full justify-center">
+                  <Check className="w-3.5 h-3.5" />
+                  {isChangingPassword ? 'Re-encrypting vault…' : 'Update Master Password'}
                 </button>
               </form>
-            )}
-          </div>
-        )}
-
-        {/* Quick Lock Action */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-[#17171D] border border-[#27272F]">
-          <div>
-            <h3 className="text-xs font-semibold text-[#F7F7FA]">Immediate Lock</h3>
-            <p className="text-[11px] text-[#71717A] mt-0.5">
-              Clear encryption keys from browser memory immediately.
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              lockVault();
-              showToast('Vault locked', 'info');
-            }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#111116] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer"
-          >
-            <Lock className="w-3.5 h-3.5 text-[#8B5CF6]" />
-            <span>Lock Now</span>
-          </button>
-        </div>
-
-        {/* Change Master Password Accordion / Form */}
-        <div className="p-4 rounded-xl bg-[#17171D] border border-[#27272F] space-y-3">
-          <div className="flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-[#8B5CF6]" />
-            <h3 className="text-xs font-semibold text-[#F7F7FA]">Change Master Password</h3>
-          </div>
-          <p className="text-[11px] text-[#71717A]">
-            Re-encrypts all vault credentials with a newly generated salt and key.
-          </p>
-
-          {passwordError && (
-            <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-800/50 flex items-center gap-2 text-xs text-red-200">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <span>{passwordError}</span>
             </div>
-          )}
+          </div>
 
-          <form onSubmit={handleChangePassword} className="space-y-3 pt-2">
-            <input
-              type="password"
-              placeholder="Current master password"
-              value={oldPassword}
-              onChange={e => setOldPassword(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input
-                type="password"
-                placeholder="New master password (min 8 chars)"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                className="w-full h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none"
-              />
-              <input
-                type="password"
-                placeholder="Confirm new master password"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                className="w-full h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isChangingPassword}
-              className="px-4 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>{isChangingPassword ? 'Re-encrypting vault...' : 'Update Master Password'}</span>
-            </button>
-          </form>
-        </div>
-      </div>
+          <div className="s-divider" />
 
-      {/* CSV Password Importer */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
-        <div className="flex items-center gap-2">
-          <Upload className="w-5 h-5 text-[#8B5CF6]" />
-          <h2 className="text-sm font-semibold text-[#F7F7FA]">Import Passwords (CSV)</h2>
-        </div>
-
-        <p className="text-xs text-[#A1A1AA] leading-relaxed">
-          Migrate your passwords from <strong>Chrome, Bitwarden, 1Password, or LastPass</strong>. Your browser decrypts the CSV, encrypts each credential client-side with AES-GCM 256, and imports them directly.
-        </p>
-
-        <div className="flex items-center gap-3 pt-1">
-          <input
-            type="file"
-            accept=".csv"
-            ref={fileInputRef}
-            onChange={handleCsvFileSelected}
-            className="hidden"
+          {/* Lock Now */}
+          <RowItem
+            title="Lock Vault Now"
+            subtitle="Wipes decrypted keys from browser memory immediately."
+            right={
+              <button
+                type="button"
+                onClick={() => { lockVault(); showToast('Vault locked', 'info'); }}
+                className="settings-btn-ghost"
+              >
+                <Lock className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
+                Lock Now
+              </button>
+            }
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isImporting}
-            className="tactile-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer disabled:opacity-50"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-[#8B5CF6]" />
-            <span>{isImporting ? 'Encrypting & Importing...' : 'Select CSV File to Import'}</span>
-          </button>
-        </div>
+        </SectionCard>
 
-        {importStats && (
-          <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/40 text-xs text-emerald-300">
-            ✓ {importStats}
-          </div>
-        )}
-      </div>
+        {/* ── 4. Import & Export ── */}
+        <SectionCard delay={180}>
+          <SectionHeader icon={Database} label="Data & Backup" />
 
-      {/* Progressive Web App (PWA) Card */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-[#8B5CF6]" />
-            <h2 className="text-sm font-semibold text-[#F7F7FA]">Progressive Web App (PWA)</h2>
-          </div>
-          <span
-            className={`text-xs px-2.5 py-1 rounded-full border font-medium ${
-              isInstalled
-                ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40'
-                : 'bg-[#17171D] text-[#A1A1AA] border-[#27272F]'
-            }`}
-          >
-            {isInstalled ? 'Installed as App' : 'Offline Shell Ready'}
-          </span>
-        </div>
+          <RowItem
+            title="Import from CSV"
+            subtitle="Migrate from Chrome, Bitwarden, 1Password, or LastPass. Encrypted client-side before storage."
+            right={
+              <>
+                <input type="file" accept=".csv" ref={fileInputRef} onChange={handleCsvFileSelected} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  className="settings-btn-ghost"
+                >
+                  <Upload className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
+                  {isImporting ? 'Importing…' : 'Import CSV'}
+                </button>
+              </>
+            }
+          />
 
-        <p className="text-xs text-[#A1A1AA] leading-relaxed">
-          Install Loxy directly onto your machine or mobile home screen as a standalone app. The Service Worker precaches the cryptographic application shell for instant launching anywhere.
-        </p>
-
-        <div className="flex items-center gap-3 pt-1">
-          {canInstallPwa && !isInstalled ? (
-            <button
-              onClick={handleInstallPwa}
-              className="tactile-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Install Loxy on This Device</span>
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 text-xs text-[#71717A]">
-              <Laptop className="w-4 h-4 text-[#8B5CF6]" />
-              <span>
-                {isInstalled
-                  ? 'Running in standalone desktop/mobile app window.'
-                  : 'Install via browser address bar or mobile "Add to Home Screen".'}
-              </span>
+          {importStats && (
+            <div className="mt-2 flex items-center gap-2 p-3 rounded-lg text-xs font-medium"
+              style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80' }}>
+              <Check className="w-3.5 h-3.5" />
+              {importStats}
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Database / Supabase Status */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-[#8B5CF6]" />
-            <h2 className="text-sm font-semibold text-[#F7F7FA]">Database Backend</h2>
-          </div>
-          <span
-            className={`text-xs px-2.5 py-1 rounded-full border font-medium ${
+          <div className="s-divider" />
+
+          <RowItem
+            title="Export Encrypted Backup"
+            subtitle="Download a zero-plaintext JSON backup. Only readable with your master password."
+            right={
+              <button type="button" onClick={handleExport} className="settings-btn-ghost">
+                <Download className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
+                Export
+              </button>
+            }
+          />
+        </SectionCard>
+
+        {/* ── 5. PWA ── */}
+        <SectionCard delay={240}>
+          <SectionHeader
+            icon={Smartphone}
+            label="App Install"
+            badge={isInstalled ? 'Installed' : 'Web App'}
+            badgeOk={isInstalled}
+          />
+
+          <RowItem
+            title="Install Loxy on This Device"
+            subtitle="Add to home screen or desktop for a fast, standalone app experience with offline support."
+            right={
+              canInstallPwa && !isInstalled ? (
+                <button type="button" onClick={handleInstallPwa} className="settings-btn-primary">
+                  <Download className="w-3.5 h-3.5" />
+                  Install
+                </button>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  <Laptop className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
+                  {isInstalled ? 'Running as app' : 'Use browser prompt'}
+                </div>
+              )
+            }
+          />
+        </SectionCard>
+
+        {/* ── 6. Database Status ── */}
+        <SectionCard delay={300}>
+          <SectionHeader
+            icon={Database}
+            label="Database Status"
+            badge={isSupabaseConnected ? 'Supabase Connected' : 'Local Mode'}
+            badgeOk={isSupabaseConnected}
+          />
+
+          <RowItem
+            title={isSupabaseConnected ? 'Supabase PostgreSQL' : 'Local Encrypted Sandbox'}
+            subtitle={
               isSupabaseConnected
-                ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40'
-                : 'bg-purple-950/40 text-purple-300 border-purple-800/40'
-            }`}
+                ? 'Remote database with Row Level Security. All records stored as authenticated ciphertext.'
+                : 'All records stored client-side in encrypted form using AES-GCM 256-bit.'
+            }
+            right={
+              isSupabaseConnected
+                ? <Wifi className="w-4 h-4" style={{ color: '#4ade80' }} />
+                : <WifiOff className="w-4 h-4" style={{ color: '#a78bfa' }} />
+            }
+          />
+
+          <div
+            className="mt-3 p-3 rounded-xl font-mono text-[11px] space-y-1"
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)', color: 'var(--text-muted)' }}
           >
-            {isSupabaseConnected ? 'Connected to Supabase' : 'Local Encrypted Sandbox'}
-          </span>
-        </div>
+            <div>Encryption: <span style={{ color: '#4ade80' }}>AES-GCM 256-bit + PBKDF2</span></div>
+            <div>Storage: <span style={{ color: '#a78bfa' }}>supabase/schema.sql</span></div>
+          </div>
+        </SectionCard>
 
-        <p className="text-xs text-[#A1A1AA] leading-relaxed">
-          {isSupabaseConnected
-            ? 'Loxy is connected to your remote Supabase PostgreSQL database with Row Level Security. All records are stored strictly in authenticated ciphertext.'
-            : 'Running in Local Encrypted Sandbox mode. All records are stored client-side in encrypted form using AES-GCM 256. To connect to your Supabase instance, add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'}
-        </p>
-
-        <div className="p-3.5 rounded-xl bg-[#17171D] border border-[#27272F] text-xs font-mono text-[#A1A1AA] space-y-1">
-          <div>SQL schema file: <span className="text-[#8B5CF6]">supabase/schema.sql</span></div>
-          <div>Encryption: <span className="text-[#22C55E]">Web Crypto AES-GCM (256-bit) + PBKDF2</span></div>
-        </div>
       </div>
-
-      {/* Backup & Export */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Download className="w-5 h-5 text-[#8B5CF6]" />
-          <h2 className="text-sm font-semibold text-[#F7F7FA]">Encrypted Vault Backup</h2>
-        </div>
-
-        <p className="text-xs text-[#A1A1AA] leading-relaxed">
-          Download a zero-plaintext encrypted JSON backup of your vault items. The file contains only ciphertexts and IVs and cannot be read without your master password.
-        </p>
-
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer"
-        >
-          <Download className="w-4 h-4 text-[#8B5CF6]" />
-          <span>Export Encrypted Vault (.json)</span>
-        </button>
-      </div>
-    </div>
+    </>
   );
 };

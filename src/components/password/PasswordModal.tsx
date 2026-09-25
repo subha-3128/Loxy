@@ -146,7 +146,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
         {/* Row 1: Website Name & Website URL */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -159,6 +159,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               value={website}
               onChange={e => setWebsite(e.target.value)}
               placeholder="e.g. GitHub, AWS, Netflix"
+              autoComplete="off"
               className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors"
             />
           </div>
@@ -172,6 +173,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="https://example.com/login"
+              autoComplete="off"
               className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors text-xs"
             />
           </div>
@@ -187,6 +189,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
             value={username}
             onChange={e => setUsername(e.target.value)}
             placeholder="user@example.com"
+            autoComplete="off"
             className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors font-mono text-xs"
           />
         </div>
@@ -214,6 +217,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Enter or generate password..."
+              autoComplete="new-password"
               className="w-full h-10 px-3 pr-10 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors font-mono"
             />
             <button

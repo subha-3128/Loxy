@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useVault } from '../../contexts/VaultContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../ui/Toast';
-import { Lock, Search, LogOut, Menu, Download, Sun, Moon } from 'lucide-react';
+import { Lock, Search, LogOut, Sun, Moon, X } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
-import { subscribeToInstallPrompt, promptPwaInstall } from '../../lib/pwa';
+
 
 interface NavbarProps {
   searchQuery: string;
@@ -17,130 +17,208 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   searchQuery,
   onSearchChange,
-  onOpenMobileMenu,
 }) => {
   const { user, signOut } = useAuth();
   const { lockVault, autoLockMinutes } = useVault();
   const { isDark, toggleTheme } = useTheme();
   const { showToast } = useToast();
-  const [canInstall, setCanInstall] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeToInstallPrompt(setCanInstall);
-    return unsubscribe;
-  }, []);
-
-  const handleInstall = async () => {
-    const ok = await promptPwaInstall();
-    if (ok) showToast('Loxy App installed!', 'success');
-  };
+    if (mobileSearchOpen) {
+      setTimeout(() => mobileSearchRef.current?.focus(), 50);
+    }
+  }, [mobileSearchOpen]);
 
   const handleLock = () => {
     lockVault();
     showToast('Vault locked', 'info');
   };
 
-  return (
-    <header className="border-b border-[#27272F] bg-[#111116]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-4 pt-[env(safe-area-inset-top,0px)] h-[calc(4rem+env(safe-area-inset-top,0px))]">
-      {/* Brand & Mobile Hamburger */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onOpenMobileMenu}
-          className="tactile-btn lg:hidden p-2 text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#17171D] rounded-lg transition-colors cursor-pointer"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+  const userInitial = user?.user_metadata?.full_name?.[0]?.toUpperCase()
+    || user?.email?.[0]?.toUpperCase()
+    || 'U';
 
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg overflow-hidden border border-[#27272F] flex items-center justify-center shrink-0">
+  return (
+    <header
+      className="sticky top-0 z-30 border-b"
+      style={{
+        background: 'var(--nav-bg, rgba(17,17,22,0.92))',
+        borderColor: 'var(--card-border)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+      }}
+    >
+      {/* ── Main row ── */}
+      <div className="flex items-center justify-between gap-2 px-4 sm:px-6 h-14">
+
+        {/* Brand */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div
+            className="w-8 h-8 rounded-xl overflow-hidden border flex items-center justify-center"
+            style={{ borderColor: 'var(--card-border)' }}
+          >
             <img src={logoImg} alt="Loxy" className="w-full h-full object-cover" />
           </div>
-          <span className="font-bold text-base tracking-wider font-mono uppercase text-[#F7F7FA]">
+          <span
+            className="font-bold text-[15px] tracking-widest font-mono uppercase"
+            style={{ color: 'var(--text-primary)' }}
+          >
             LOXY
           </span>
         </div>
-      </div>
 
-      {/* Global Search Bar */}
-      <div className="flex-1 max-w-md mx-2 sm:mx-6">
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A]" />
+        {/* Desktop search — hidden on mobile */}
+        <div className="hidden sm:flex flex-1 max-w-md mx-4 relative">
+          <Search
+            className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: 'var(--text-muted)' }}
+          />
           <input
             type="text"
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder="Search passwords, accounts, categories..."
-            className="w-full h-9 pl-9 pr-12 rounded-lg bg-[#17171D] border border-[#27272F] text-xs sm:text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors"
+            placeholder="Search vault…"
+            className="w-full h-9 pl-9 pr-3 rounded-xl text-sm focus:outline-none transition-all"
+            style={{
+              background: 'var(--surface-1)',
+              border: '1.5px solid var(--card-border)',
+              color: 'var(--text-primary)',
+            }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#8B5CF6')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'var(--card-border)')}
           />
-          <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] bg-[#27272F] text-[#A1A1AA] px-1.5 py-0.5 rounded font-mono">
-            ⌘K
-          </kbd>
+        </div>
+
+        {/* Right actions */}
+        <div className="flex items-center gap-1.5">
+          {/* Mobile search toggle */}
+          <button
+            onClick={() => { setMobileSearchOpen(!mobileSearchOpen); if (mobileSearchOpen) onSearchChange(''); }}
+            className="sm:hidden nav-icon-btn"
+            aria-label="Toggle search"
+          >
+            {mobileSearchOpen
+              ? <X className="w-4 h-4" />
+              : <Search className="w-4 h-4" />
+            }
+          </button>
+
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="nav-icon-btn"
+            title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+            aria-label="Toggle theme"
+          >
+            {isDark
+              ? <Sun className="w-4 h-4" style={{ color: '#fbbf24' }} />
+              : <Moon className="w-4 h-4" style={{ color: '#7c3aed' }} />
+            }
+          </button>
+
+          {/* Lock */}
+          <button
+            onClick={handleLock}
+            className="nav-icon-btn"
+            title={`Lock vault (auto-lock: ${autoLockMinutes ? autoLockMinutes + 'm' : 'off'})`}
+            aria-label="Lock vault"
+          >
+            <Lock className="w-4 h-4" style={{ color: '#a78bfa' }} />
+          </button>
+
+          {/* Divider */}
+          <div
+            className="w-px h-5 mx-0.5 hidden sm:block"
+            style={{ background: 'var(--card-border)' }}
+          />
+
+          {/* Avatar + signout */}
+          <div className="flex items-center gap-1">
+            {user?.user_metadata?.avatar_url ? (
+              <img
+                src={user.user_metadata.avatar_url}
+                alt="Avatar"
+                className="w-7 h-7 rounded-full object-cover border"
+                style={{ borderColor: 'var(--card-border)' }}
+              />
+            ) : (
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold"
+                style={{
+                  background: 'linear-gradient(135deg,#7C3AED,#a78bfa)',
+                  color: '#fff',
+                }}
+              >
+                {userInitial}
+              </div>
+            )}
+            <button
+              onClick={() => signOut()}
+              className="nav-icon-btn"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* User Actions */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* PWA Install Button */}
-        {canInstall && (
-          <button
-            onClick={handleInstall}
-            className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8B5CF6]/15 hover:bg-[#8B5CF6]/25 border border-[#8B5CF6]/40 text-xs font-medium text-purple-300 transition-colors cursor-pointer"
-            title="Install Loxy App on this device"
-          >
-            <Download className="w-3.5 h-3.5 text-[#8B5CF6]" />
-            <span className="hidden sm:inline">Install App</span>
-          </button>
-        )}
-
-        {/* Theme Toggle Button */}
-        <button
-          onClick={toggleTheme}
-          className="tactile-btn p-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
-          title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-          aria-label="Toggle dark/light mode"
-        >
-          {isDark ? (
-            <Sun className="w-3.5 h-3.5 text-amber-400" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 text-purple-600" />
-          )}
-        </button>
-
-        {/* Quick Lock Button */}
-        <button
-          onClick={handleLock}
-          className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
-          title={`Lock vault now (Auto-lock in ${autoLockMinutes ? autoLockMinutes + 'm' : 'Never'})`}
-        >
-          <Lock className="w-3.5 h-3.5 text-[#8B5CF6]" />
-          <span className="hidden md:inline">Lock Vault</span>
-        </button>
-
-        {/* User Profile Avatar / Logout */}
-        <div className="flex items-center gap-2 pl-2 border-l border-[#27272F]">
-          {user?.user_metadata?.avatar_url ? (
-            <img
-              src={user.user_metadata.avatar_url}
-              alt="Avatar"
-              className="w-8 h-8 rounded-full border border-[#27272F] object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-[#17171D] border border-[#27272F] flex items-center justify-center text-xs font-bold text-[#8B5CF6]">
-              {user?.email?.charAt(0).toUpperCase() || 'U'}
-            </div>
-          )}
-
-          <button
-            onClick={() => signOut()}
-            className="tactile-btn p-1.5 text-[#71717A] hover:text-[#EF4444] hover:bg-[#17171D] rounded-lg transition-colors cursor-pointer"
-            title="Sign out of Loxy"
-            aria-label="Sign out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+      {/* ── Mobile search row — slides down when open ── */}
+      <div
+        className="sm:hidden overflow-hidden transition-all duration-300 ease-in-out"
+        style={{
+          maxHeight: mobileSearchOpen ? '56px' : '0px',
+          opacity: mobileSearchOpen ? 1 : 0,
+        }}
+      >
+        <div className="px-4 pb-3 pt-0.5 relative">
+          <Search
+            className="w-4 h-4 absolute left-7 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ color: 'var(--text-muted)' }}
+          />
+          <input
+            ref={mobileSearchRef}
+            type="text"
+            value={searchQuery}
+            onChange={e => onSearchChange(e.target.value)}
+            placeholder="Search vault…"
+            className="w-full h-10 pl-9 pr-4 rounded-xl text-sm focus:outline-none"
+            style={{
+              background: 'var(--surface-1)',
+              border: '1.5px solid #8B5CF6',
+              color: 'var(--text-primary)',
+            }}
+          />
         </div>
       </div>
+
+      <style>{`
+        .nav-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          border: 1.5px solid transparent;
+          background: transparent;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s, transform 0.1s;
+          color: var(--text-muted);
+        }
+        .nav-icon-btn:hover {
+          background: var(--surface-1);
+          border-color: var(--card-border);
+          color: var(--text-primary);
+        }
+        .nav-icon-btn:active {
+          transform: scale(0.92);
+        }
+      `}</style>
     </header>
   );
 };
