@@ -1,7 +1,5 @@
 import React from 'react';
 import { useVault } from '../../contexts/VaultContext';
-import { CATEGORIES } from '../../types/vault';
-import type { Category } from '../../types/vault';
 import {
   KeyRound,
   Star,
@@ -10,14 +8,6 @@ import {
   FolderLock,
   Plus,
   Lock,
-  Code2,
-  Briefcase,
-  Share2,
-  Landmark,
-  ShoppingBag,
-  GraduationCap,
-  Tv,
-  HelpCircle,
 } from 'lucide-react';
 
 export type MainView = 'dashboard' | 'favorites' | 'security' | 'settings';
@@ -25,29 +15,14 @@ export type MainView = 'dashboard' | 'favorites' | 'security' | 'settings';
 interface SidebarProps {
   currentView: MainView;
   onSelectView: (view: MainView) => void;
-  selectedCategory: Category | 'All';
-  onSelectCategory: (category: Category | 'All') => void;
   onOpenAddModal: () => void;
   isMobileOpen: boolean;
   onCloseMobile: () => void;
 }
 
-const CATEGORY_ICONS: Record<Category, React.ComponentType<{ className?: string }>> = {
-  Development: Code2,
-  Work: Briefcase,
-  Social: Share2,
-  Banking: Landmark,
-  Shopping: ShoppingBag,
-  College: GraduationCap,
-  Entertainment: Tv,
-  Other: HelpCircle,
-};
-
 export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   onSelectView,
-  selectedCategory,
-  onSelectCategory,
   onOpenAddModal,
   isMobileOpen,
   onCloseMobile,
@@ -57,19 +32,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const totalCount = items.length;
   const favoritesCount = items.filter(i => i.is_favorite).length;
 
-  const categoryCounts = items.reduce((acc, item) => {
-    acc[item.category] = (acc[item.category] || 0) + 1;
-    return acc;
-  }, {} as Record<Category, number>);
-
   const handleNav = (view: MainView) => {
     onSelectView(view);
-    onCloseMobile();
-  };
-
-  const handleCategoryNav = (cat: Category | 'All') => {
-    onSelectView('dashboard');
-    onSelectCategory(cat);
     onCloseMobile();
   };
 
@@ -99,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => handleNav('dashboard')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-              currentView === 'dashboard' && selectedCategory === 'All'
+              currentView === 'dashboard'
                 ? 'bg-[#17171D] text-[#F7F7FA] border border-[#27272F]'
                 : 'text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#17171D]/60'
             }`}
@@ -157,39 +121,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>Settings</span>
             </div>
           </button>
-        </div>
-
-        {/* Categories */}
-        <div className="px-3 space-y-1">
-          <p className="px-3 text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">
-            Categories
-          </p>
-
-          {CATEGORIES.map(cat => {
-            const Icon = CATEGORY_ICONS[cat];
-            const count = categoryCounts[cat] || 0;
-            const isSelected = currentView === 'dashboard' && selectedCategory === cat;
-
-            return (
-              <button
-                key={cat}
-                onClick={() => handleCategoryNav(cat)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#17171D] text-[#8B5CF6] font-medium border border-[#27272F]'
-                    : 'text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#17171D]/40'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Icon className="w-3.5 h-3.5 opacity-80" />
-                  <span>{cat}</span>
-                </div>
-                {count > 0 && (
-                  <span className="text-[10px] text-[#71717A]">{count}</span>
-                )}
-              </button>
-            );
-          })}
         </div>
       </div>
 

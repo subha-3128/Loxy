@@ -14,7 +14,7 @@ import { PasswordDetailsModal } from './components/password/PasswordDetailsModal
 import { DeleteConfirmModal } from './components/password/DeleteConfirmModal';
 import { SecurityDashboard } from './components/security/SecurityDashboard';
 import { SettingsView } from './components/settings/SettingsView';
-import type { Category, DecryptedVaultItem } from './types/vault';
+import type { DecryptedVaultItem } from './types/vault';
 import {
   Plus,
   KeyRound,
@@ -29,7 +29,6 @@ const LoxyApp: React.FC = () => {
 
   // Navigation & Filtering State
   const [currentView, setCurrentView] = useState<MainView>('dashboard');
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'recent'>('name');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -47,11 +46,6 @@ const LoxyApp: React.FC = () => {
     // Filter by view
     if (currentView === 'favorites') {
       result = result.filter(item => item.is_favorite);
-    }
-
-    // Filter by category
-    if (selectedCategory !== 'All' && currentView === 'dashboard') {
-      result = result.filter(item => item.category === selectedCategory);
     }
 
     // Filter by search query
@@ -76,7 +70,7 @@ const LoxyApp: React.FC = () => {
     });
 
     return result;
-  }, [items, currentView, selectedCategory, searchQuery, sortBy]);
+  }, [items, currentView, searchQuery, sortBy]);
 
   // Handle Edit Action
   const handleEdit = (item: DecryptedVaultItem) => {
@@ -134,8 +128,6 @@ const LoxyApp: React.FC = () => {
         <Sidebar
           currentView={currentView}
           onSelectView={setCurrentView}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
           onOpenAddModal={() => {
             setEditingItem(null);
             setIsAddModalOpen(true);
@@ -165,9 +157,7 @@ const LoxyApp: React.FC = () => {
                   <h1 className="text-xl sm:text-2xl font-bold text-[#F7F7FA] tracking-tight">
                     {currentView === 'favorites'
                       ? 'Favorite Passwords'
-                      : selectedCategory === 'All'
-                      ? 'All Passwords'
-                      : `${selectedCategory} Passwords`}
+                      : 'All Passwords'}
                   </h1>
                   <p className="text-xs text-[#A1A1AA] mt-0.5">
                     {filteredItems.length} {filteredItems.length === 1 ? 'credential' : 'credentials'} stored
