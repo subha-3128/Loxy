@@ -2,8 +2,13 @@ import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import type { Category, EncryptedVaultPayload, VaultItemRow } from '../types/vault';
 
-const envUrl = import.meta.env.VITE_SUPABASE_URL;
-const envAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const envUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+
+const envAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const isSupabaseConfigured = Boolean(
   envUrl &&
