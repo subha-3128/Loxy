@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   generateSalt,
   deriveKeyFromPassword,
@@ -7,55 +8,55 @@ import {
   verifyMasterPassword,
 } from './crypto';
 
-async function runCryptoSelfTest() {
-  console.log('Testing Loxy zero-knowledge cryptography...');
-  
-  const testPassword = 'CorrectMasterPassword!2026';
-  const wrongPassword = 'WrongPasswordAttempt';
-  const salt = generateSalt();
+describe('crypto (Zero-Knowledge AES-GCM & PBKDF2)', () => {
+  it('generates a 32-byte salt', () => {
+    const salt = generateSalt();
+    expect(salt).toBeInstanceOf(Uint8Array);
+    expect(salt.byteLength).toBe(32);
+  });
 
-  // 1. Key derivation
-  const key = await deriveKeyFromPassword(testPassword, salt);
-  console.assert(key !== null, 'Key derivation failed');
+  it('encrypts and decrypts sensitive data correctly without plaintext leakage', async () => {
+    const testPassword = 'CorrectMasterPassword!2026';
+    const salt = generateSalt();
+    const key = await deriveKeyFromPassword(testPassword, salt);
+    expect(key).toBeTruthy();
 
-  // 2. Encrypt sensitive payload
-  const secretPayload = {
-    website: 'GitHub',
-    username: 'octocat@github.com',
-    password: 'superSecretPassword$99',
-    url: 'https://github.com',
-    notes: '2FA backup codes stored elsewhere',
-  };
+    const secretPayload = {
+      website: 'GitHub',
+      username: 'octocat@github.com',
+      password: 'superSecretPassword$99',
+      url: 'https://github.com',
+      notes: '2FA backup codes stored elsewhere',
+    };
 
-  const encrypted = await encryptSensitiveData(secretPayload, key);
-  console.assert(!encrypted.ciphertext.includes('superSecretPassword'), 'Plaintext leaked in ciphertext!');
-  console.assert(encrypted.iv.length > 0, 'IV is missing');
+    const encrypted = await encryptSensitiveData(secretPayload, key);
+    expect(encrypted.ciphertext.includes('superSecretPassword')).toBe(false);
+    expect(encrypted.iv.length).toBeGreaterThan(0);
 
-  // 3. Decrypt with correct key
-  const decrypted = await decryptSensitiveData<typeof secretPayload>(encrypted, key);
-  console.assert(decrypted.password === secretPayload.password, 'Decrypted password mismatch');
-  console.assert(decrypted.website === 'GitHub', 'Decrypted website mismatch');
+    const decrypted = await decryptSensitiveData<typeof secretPayload>(encrypted, key);
+    expect(decrypted.password).toBe(secretPayload.password);
+    expect(decrypted.website).toBe('GitHub');
+  });
 
-  // 4. Verification token & password check
-  const verificationBundle = await createVaultVerification(key, salt);
-  const verifiedKey = await verifyMasterPassword(
-    testPassword,
-    verificationBundle.salt,
-    verificationBundle.verification
-  );
-  console.assert(verifiedKey !== null, 'Valid password verification failed');
+  it('validates correct master password and rejects invalid attempts', async () => {
+    const testPassword = 'CorrectMasterPassword!2026';
+    const wrongPassword = 'WrongPasswordAttempt';
+    const salt = generateSalt();
+    const key = await deriveKeyFromPassword(testPassword, salt);
 
-  const failedKey = await verifyMasterPassword(
-    wrongPassword,
-    verificationBundle.salt,
-    verificationBundle.verification
-  );
-  console.assert(failedKey === null, 'Wrong password did not fail verification!');
+    const verificationBundle = await createVaultVerification(key, salt);
+    const verifiedKey = await verifyMasterPassword(
+      testPassword,
+      verificationBundle.salt,
+      verificationBundle.verification
+    );
+    expect(verifiedKey).not.toBeNull();
 
-  console.log('✅ All Loxy cryptographic self-checks passed!');
-}
-
-runCryptoSelfTest().catch(err => {
-  console.error('❌ Crypto self-test failed:', err);
-  process.exit(1);
+    const failedKey = await verifyMasterPassword(
+      wrongPassword,
+      verificationBundle.salt,
+      verificationBundle.verification
+    );
+    expect(failedKey).toBeNull();
+  });
 });

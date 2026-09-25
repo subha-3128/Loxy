@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useVault } from '../../contexts/VaultContext';
 import { useToast } from '../ui/Toast';
 import type { AutoLockDuration } from '../../types/vault';
 import {
+  isBiometricsAvailable,
+  isBiometricEnabled,
+  enableBiometric,
+  disableBiometric,
+} from '../../lib/biometrics';
+import { parsePasswordCsv } from '../../lib/csvImporter';
+import {
   User,
   Shield,
   Lock,
   Download,
+  Upload,
   Database,
   KeyRound,
   Check,
   AlertCircle,
   LogOut,
+  Fingerprint,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -23,6 +33,7 @@ export const SettingsView: React.FC = () => {
     lockVault,
     changeMasterPassword,
     exportEncryptedVault,
+    addItem,
   } = useVault();
   const { showToast } = useToast();
 
@@ -32,10 +43,56 @@ export const SettingsView: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // Biometrics State
+  const [canUseBio, setCanUseBio] = useState(false);
+  const [bioEnabled, setBioEnabled] = useState(false);
+  const [bioPasswordPrompt, setBioPasswordPrompt] = useState(false);
+  const [bioPassword, setBioPassword] = useState('');
+
+  // CSV Import State
+  const [isImporting, setIsImporting] = useState(false);
+  const [importStats, setImportStats] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      isBiometricsAvailable().then(avail => {
+        setCanUseBio(avail);
+        setBioEnabled(avail && isBiometricEnabled(user.id));
+      });
+    }
+  }, [user]);
+
   const handleAutoLockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = parseInt(e.target.value) as AutoLockDuration;
     setAutoLockMinutes(val);
     showToast(`Auto-lock set to ${val === 0 ? 'Never' : val + ' minutes'}`, 'info');
+  };
+
+  const handleToggleBio = async () => {
+    if (!user) return;
+    if (bioEnabled) {
+      disableBiometric(user.id);
+      setBioEnabled(false);
+      showToast('Biometric unlock disabled', 'info');
+    } else {
+      setBioPasswordPrompt(true);
+    }
+  };
+
+  const handleConfirmEnableBio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !bioPassword) return;
+
+    const ok = await enableBiometric(user.id, bioPassword);
+    if (ok) {
+      setBioEnabled(true);
+      setBioPasswordPrompt(false);
+      setBioPassword('');
+      showToast('Touch ID / Biometrics enabled!', 'success');
+    } else {
+      showToast('Biometric registration failed', 'error');
+    }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -89,6 +146,48 @@ export const SettingsView: React.FC = () => {
       showToast('Encrypted vault exported', 'success');
     } catch {
       showToast('Export failed', 'error');
+    }
+  };
+
+  const handleCsvFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportStats(null);
+
+    try {
+      const text = await file.text();
+      const items = parsePasswordCsv(text);
+
+      if (items.length === 0) {
+        showToast('No credentials found in CSV file', 'error');
+        return;
+      }
+
+      let imported = 0;
+      for (const item of items) {
+        const added = await addItem(
+          {
+            website: item.website,
+            username: item.username,
+            password: item.password,
+            url: item.url,
+            notes: item.notes,
+          },
+          item.category
+        );
+        if (added) imported++;
+      }
+
+      setImportStats(`Successfully imported ${imported} credentials from ${file.name}`);
+      showToast(`Imported ${imported} passwords`, 'success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to parse CSV';
+      showToast(msg, 'error');
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -155,6 +254,53 @@ export const SettingsView: React.FC = () => {
             <option value={0}>Never (Not recommended)</option>
           </select>
         </div>
+
+        {/* Biometric Unlock Setting */}
+        {canUseBio && (
+          <div className="p-4 rounded-xl bg-[#17171D] border border-[#27272F] space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-semibold text-[#F7F7FA] flex items-center gap-2">
+                  <Fingerprint className="w-4 h-4 text-[#8B5CF6]" />
+                  <span>Touch ID / Biometric Unlock</span>
+                </h3>
+                <p className="text-[11px] text-[#71717A] mt-0.5">
+                  Unlock your vault using device biometrics instead of typing your master password every time.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleBio}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  bioEnabled
+                    ? 'bg-red-950/40 text-red-300 border-red-800/50 hover:bg-red-900/50'
+                    : 'bg-[#8B5CF6] text-white border-transparent hover:bg-[#7C3AED]'
+                }`}
+              >
+                {bioEnabled ? 'Disable' : 'Enable Touch ID'}
+              </button>
+            </div>
+
+            {bioPasswordPrompt && (
+              <form onSubmit={handleConfirmEnableBio} className="pt-2 flex items-center gap-2">
+                <input
+                  type="password"
+                  required
+                  placeholder="Verify master password..."
+                  value={bioPassword}
+                  onChange={e => setBioPassword(e.target.value)}
+                  className="h-9 px-3 rounded-lg bg-[#111116] border border-[#27272F] text-xs text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none flex-1"
+                />
+                <button
+                  type="submit"
+                  className="h-9 px-3 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium shrink-0"
+                >
+                  Verify & Register
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {/* Quick Lock Action */}
         <div className="flex items-center justify-between p-4 rounded-xl bg-[#17171D] border border-[#27272F]">
@@ -227,6 +373,42 @@ export const SettingsView: React.FC = () => {
             </button>
           </form>
         </div>
+      </div>
+
+      {/* CSV Password Importer */}
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Upload className="w-5 h-5 text-[#8B5CF6]" />
+          <h2 className="text-sm font-semibold text-[#F7F7FA]">Import Passwords (CSV)</h2>
+        </div>
+
+        <p className="text-xs text-[#A1A1AA] leading-relaxed">
+          Migrate your passwords from <strong>Chrome, Bitwarden, 1Password, or LastPass</strong>. Your browser decrypts the CSV, encrypts each credential client-side with AES-GCM 256, and imports them directly.
+        </p>
+
+        <div className="flex items-center gap-3 pt-1">
+          <input
+            type="file"
+            accept=".csv"
+            ref={fileInputRef}
+            onChange={handleCsvFileSelected}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[#8B5CF6]" />
+            <span>{isImporting ? 'Encrypting & Importing...' : 'Select CSV File to Import'}</span>
+          </button>
+        </div>
+
+        {importStats && (
+          <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/40 text-xs text-emerald-300">
+            ✓ {importStats}
+          </div>
+        )}
       </div>
 
       {/* Database / Supabase Status */}

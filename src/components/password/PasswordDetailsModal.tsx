@@ -16,6 +16,8 @@ import {
   FileText,
 } from 'lucide-react';
 
+import { copySecureCredential } from '../../lib/clipboard';
+
 interface PasswordDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -39,9 +41,14 @@ export const PasswordDetailsModal: React.FC<PasswordDetailsModalProps> = ({
 
   const handleCopy = async (text: string, field: 'username' | 'password') => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (field === 'password') {
+        await copySecureCredential(text, 30);
+        showToast('Password copied (clears in 30s)', 'success');
+      } else {
+        await navigator.clipboard.writeText(text);
+        showToast('Username copied', 'success');
+      }
       setCopiedField(field);
-      showToast(`${field === 'password' ? 'Password' : 'Username'} copied`, 'success');
       setTimeout(() => setCopiedField(null), 2000);
     } catch {
       showToast('Failed to copy to clipboard', 'error');

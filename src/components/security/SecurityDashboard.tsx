@@ -1,6 +1,8 @@
+import React, { useState } from 'react';
 import type { DecryptedVaultItem } from '../../types/vault';
 import { useVault } from '../../contexts/VaultContext';
 import { evaluatePasswordStrength } from '../../lib/passwordGenerator';
+import { checkPasswordBreach } from '../../lib/breachCheck';
 import {
   ShieldCheck,
   AlertTriangle,
@@ -9,6 +11,9 @@ import {
   CheckCircle2,
   Lock,
   ArrowRight,
+  ShieldAlert,
+  Flame,
+  RefreshCw,
 } from 'lucide-react';
 
 interface SecurityDashboardProps {
@@ -21,6 +26,9 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   onViewItem,
 }) => {
   const { items } = useVault();
+  const [isAuditingBreaches, setIsAuditingBreaches] = useState(false);
+  const [breachedItems, setBreachedItems] = useState<Array<{ item: DecryptedVaultItem; count: number }>>([]);
+  const [hasAudited, setHasAudited] = useState(false);
 
   // Compute stats locally
   const passwordMap = new Map<string, DecryptedVaultItem[]>();
@@ -56,6 +64,24 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   const total = items.length;
   const healthPercent = total > 0 ? Math.round((strongCount / total) * 100) : 100;
 
+  const handleAuditBreaches = async () => {
+    setIsAuditingBreaches(true);
+    const breached: Array<{ item: DecryptedVaultItem; count: number }> = [];
+
+    try {
+      for (const item of items) {
+        const count = await checkPasswordBreach(item.password);
+        if (count > 0) {
+          breached.push({ item, count });
+        }
+      }
+      setBreachedItems(breached);
+      setHasAudited(true);
+    } finally {
+      setIsAuditingBreaches(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -73,7 +99,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
             </p>
           </div>
 
-          {/* Health Score Pill */}
+          {/* Health Score & Audit CTA */}
           <div className="flex items-center gap-4 bg-[#17171D] border border-[#27272F] px-4 py-3 rounded-xl shrink-0">
             <div className="text-right">
               <span className="text-[11px] font-medium text-[#71717A] uppercase block">
@@ -127,6 +153,74 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
             </span>
           </div>
         </div>
+      </div>
+
+      {/* HaveIBeenPwned k-Anonymity Breach Scanner */}
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold text-[#F7F7FA] flex items-center gap-2">
+              <Flame className="w-4 h-4 text-orange-400" />
+              <span>Breached Password Scanner (HaveIBeenPwned)</span>
+            </h3>
+            <p className="text-xs text-[#71717A] mt-0.5">
+              Audits against billions of exposed passwords using mathematical k-Anonymity. Zero passwords ever leave your machine.
+            </p>
+          </div>
+
+          <button
+            onClick={handleAuditBreaches}
+            disabled={isAuditingBreaches || items.length === 0}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-orange-950/40 hover:bg-orange-900/60 border border-orange-800/50 text-xs font-medium text-orange-200 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isAuditingBreaches ? 'animate-spin' : ''}`} />
+            <span>{isAuditingBreaches ? 'Auditing Vault...' : 'Scan Known Breaches'}</span>
+          </button>
+        </div>
+
+        {hasAudited && (
+          <div>
+            {breachedItems.length === 0 ? (
+              <div className="py-4 text-center text-xs text-[#22C55E] bg-[#17171D]/40 rounded-xl border border-[#22C55E]/20">
+                🛡️ Excellent! None of your vault passwords match known public data breaches.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-xs text-red-200 flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+                  <span>
+                    Warning: {breachedItems.length} {breachedItems.length === 1 ? 'password appears' : 'passwords appear'} in known public data leaks. Change immediately!
+                  </span>
+                </div>
+
+                <div className="divide-y divide-[#27272F]">
+                  {breachedItems.map(({ item, count }) => (
+                    <div
+                      key={item.id}
+                      className="py-3 flex items-center justify-between gap-4"
+                    >
+                      <div>
+                        <div className="font-medium text-xs text-[#F7F7FA]">{item.website}</div>
+                        <div className="text-[11px] font-mono text-[#71717A]">{item.username}</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="px-2 py-0.5 rounded bg-red-950/60 border border-red-800/50 text-[10px] text-red-400 font-mono">
+                          Leaked {count.toLocaleString()} times
+                        </span>
+                        <button
+                          onClick={() => onEditItem(item)}
+                          className="px-3 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          Change
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Weak Passwords Section */}

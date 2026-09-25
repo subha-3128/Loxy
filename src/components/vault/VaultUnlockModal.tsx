@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useVault } from '../../contexts/VaultContext';
 import { useToast } from '../ui/Toast';
-import { Lock, KeyRound, Eye, EyeOff, ShieldAlert, Sparkles, LogOut } from 'lucide-react';
+import { Lock, KeyRound, Eye, EyeOff, ShieldAlert, Sparkles, LogOut, Fingerprint } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import {
+  isBiometricsAvailable,
+  isBiometricEnabled,
+  unlockWithBiometric,
+  enableBiometric,
+} from '../../lib/biometrics';
 
 export const VaultUnlockModal: React.FC = () => {
   const { isConfigured, isUnlocked, unlockVault, setupVault, loading } = useVault();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { showToast } = useToast();
 
   const [password, setPassword] = useState('');
@@ -14,6 +20,9 @@ export const VaultUnlockModal: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasBiometrics, setHasBiometrics] = useState(false);
+  const [canUseBiometrics, setCanUseBiometrics] = useState(false);
+  const [enableBioOnSetup, setEnableBioOnSetup] = useState(true);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,10 +32,38 @@ export const VaultUnlockModal: React.FC = () => {
       setConfirmPassword('');
       setError(null);
       setTimeout(() => inputRef.current?.focus(), 100);
+
+      if (user) {
+        isBiometricsAvailable().then(avail => {
+          setCanUseBiometrics(avail);
+          setHasBiometrics(avail && isBiometricEnabled(user.id));
+        });
+      }
     }
-  }, [isUnlocked, isConfigured]);
+  }, [isUnlocked, isConfigured, user]);
 
   if (isUnlocked) return null;
+
+  const handleBiometricUnlock = async () => {
+    if (!user) return;
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const recoveredPassword = await unlockWithBiometric(user.id);
+      if (recoveredPassword) {
+        const ok = await unlockVault(recoveredPassword);
+        if (ok) {
+          showToast('Unlocked with Biometrics', 'success');
+          return;
+        }
+      }
+      setError('Biometric authentication failed. Please enter your master password.');
+    } catch {
+      setError('Biometric unlock was cancelled or unavailable.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +79,9 @@ export const VaultUnlockModal: React.FC = () => {
       const success = await unlockVault(password);
       if (success) {
         showToast('Vault unlocked', 'success');
+        if (user && canUseBiometrics && !hasBiometrics && enableBioOnSetup) {
+          await enableBiometric(user.id, password);
+        }
       } else {
         setError('Unable to unlock your vault. Please check your master password.');
       }
@@ -68,6 +108,9 @@ export const VaultUnlockModal: React.FC = () => {
 
     try {
       await setupVault(password);
+      if (user && canUseBiometrics && enableBioOnSetup) {
+        await enableBiometric(user.id, password);
+      }
       showToast('Vault created and secured', 'success');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to initialize vault';
@@ -99,6 +142,29 @@ export const VaultUnlockModal: React.FC = () => {
           <div className="mb-5 p-3 rounded-lg bg-red-950/40 border border-red-800/50 flex items-start gap-2.5 text-xs text-red-200">
             <ShieldAlert className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* Biometric Quick Unlock (if registered) */}
+        {isConfigured && hasBiometrics && (
+          <div className="mb-5">
+            <button
+              type="button"
+              onClick={handleBiometricUnlock}
+              disabled={isSubmitting}
+              className="w-full h-11 px-4 rounded-xl bg-[#17171D] hover:bg-[#1D1D24] text-[#F7F7FA] border border-[#8B5CF6]/50 font-medium text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+            >
+              <Fingerprint className="w-4 h-4 text-[#8B5CF6]" />
+              <span>Unlock with Touch ID / Biometrics</span>
+            </button>
+
+            <div className="relative flex py-3 items-center">
+              <div className="flex-grow border-t border-[#27272F]" />
+              <span className="flex-shrink mx-3 text-[10px] text-[#71717A] uppercase tracking-wider">
+                or use master password
+              </span>
+              <div className="flex-grow border-t border-[#27272F]" />
+            </div>
           </div>
         )}
 
@@ -149,6 +215,21 @@ export const VaultUnlockModal: React.FC = () => {
                 <strong className="text-purple-400">Important:</strong> Loxy never stores your master password. If you lose it, your vault data cannot be recovered.
               </p>
             </div>
+          )}
+
+          {canUseBiometrics && (
+            <label className="flex items-center gap-2 text-xs text-[#A1A1AA] cursor-pointer hover:text-white pt-1">
+              <input
+                type="checkbox"
+                checked={enableBioOnSetup}
+                onChange={e => setEnableBioOnSetup(e.target.checked)}
+                className="accent-purple-500 rounded"
+              />
+              <span className="flex items-center gap-1.5">
+                <Fingerprint className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                Enable Touch ID / Biometric unlock on this device
+              </span>
+            </label>
           )}
 
           <button

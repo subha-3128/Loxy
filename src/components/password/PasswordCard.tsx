@@ -15,6 +15,8 @@ import {
   Globe,
 } from 'lucide-react';
 
+import { copySecureCredential } from '../../lib/clipboard';
+
 interface PasswordCardProps {
   item: DecryptedVaultItem;
   onEdit: (item: DecryptedVaultItem) => void;
@@ -39,9 +41,14 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
   const handleCopy = async (text: string, field: 'username' | 'password', e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(text);
+      if (field === 'password') {
+        await copySecureCredential(text, 30);
+        showToast('Password copied (clears in 30s)', 'success');
+      } else {
+        await navigator.clipboard.writeText(text);
+        showToast('Username copied', 'success');
+      }
       setCopiedField(field);
-      showToast(`${field === 'password' ? 'Password' : 'Username'} copied`, 'success');
       setTimeout(() => setCopiedField(null), 2000);
     } catch {
       showToast('Could not copy to clipboard', 'error');
