@@ -30,7 +30,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { subscribeToInstallPrompt, promptPwaInstall, isAppInstalled } from '../../lib/pwa';
+import { isAppInstalled } from '../../lib/pwa';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /* ─── tiny helpers ─────────────────────────────────────── */
@@ -140,9 +140,6 @@ export const SettingsView: React.FC = () => {
   const [importStats, setImportStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setIsInstalled(isAppInstalled());
-  }, []);
 
   useEffect(() => {
     if (user) {
