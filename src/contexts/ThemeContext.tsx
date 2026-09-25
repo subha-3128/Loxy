@@ -21,7 +21,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return saved;
       }
     }
-    return 'dark'; // Default to dark developer aesthetics
+    return 'system'; // Default to OS preference
   });
 
   const [isDark, setIsDark] = useState<boolean>(() => {
