@@ -6,6 +6,11 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: false,
+  },
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {
