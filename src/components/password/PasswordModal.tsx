@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { CATEGORIES } from '../../types/vault';
 import type { Category, DecryptedVaultItem, SensitiveVaultData } from '../../types/vault';
 import { useVault } from '../../contexts/VaultContext';
 import { useToast } from '../ui/Toast';
@@ -37,7 +36,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [url, setUrl] = useState('');
-  const [category, setCategory] = useState<Category>('Development');
   const [notes, setNotes] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -55,7 +53,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       setUsername(editingItem.username);
       setPassword(editingItem.password);
       setUrl(editingItem.url || '');
-      setCategory(editingItem.category);
       setNotes(editingItem.notes || '');
       setIsFavorite(editingItem.is_favorite);
     } else {
@@ -63,7 +60,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       setUsername('');
       setPassword('');
       setUrl('');
-      setCategory('Development');
       setNotes('');
       setIsFavorite(false);
     }
@@ -108,9 +104,11 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       notes: notes.trim() || undefined,
     };
 
+    const itemCategory: Category = editingItem?.category || 'Other';
+
     try {
       if (editingItem) {
-        const ok = await updateItem(editingItem.id, sensitiveData, category, isFavorite);
+        const ok = await updateItem(editingItem.id, sensitiveData, itemCategory, isFavorite);
         if (ok) {
           showToast('Password updated', 'success');
           onClose();
@@ -118,7 +116,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
           setError('Failed to update password.');
         }
       } else {
-        const created = await addItem(sensitiveData, category, isFavorite);
+        const created = await addItem(sensitiveData, itemCategory, isFavorite);
         if (created) {
           showToast('Password saved', 'success');
           onClose();
@@ -149,7 +147,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Row 1: Website & Category */}
+        {/* Row 1: Website Name & Website URL */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-[#A1A1AA] mb-1">
@@ -167,39 +165,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-[#A1A1AA] mb-1">
-              Category
-            </label>
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value as Category)}
-              className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] focus:border-[#8B5CF6] focus:outline-none transition-colors"
-            >
-              {CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Row 2: Username / Email & URL */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-[#A1A1AA] mb-1">
-              Username or Email
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="user@example.com"
-              className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors font-mono text-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#A1A1AA] mb-1">
               Website URL
             </label>
             <input
@@ -210,6 +175,20 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors text-xs"
             />
           </div>
+        </div>
+
+        {/* Row 2: Username or Email */}
+        <div>
+          <label className="block text-xs font-medium text-[#A1A1AA] mb-1">
+            Username or Email
+          </label>
+          <input
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="user@example.com"
+            className="w-full h-10 px-3 rounded-lg bg-[#17171D] border border-[#27272F] text-sm text-[#F7F7FA] placeholder-[#71717A] focus:border-[#8B5CF6] focus:outline-none transition-colors font-mono text-xs"
+          />
         </div>
 
         {/* Row 3: Password & Generator Toggle */}
