@@ -23,9 +23,9 @@ export const LoginView: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#08080C] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden select-none">
       {/* Subtle radial ambient background glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-950/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-purple-600/15 blur-[130px] rounded-full pointer-events-none ambient-glow-pulse" />
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 animate-modal-pop">
         {/* Brand Card */}
         <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
           {/* Logo Emblem */}
@@ -55,7 +55,7 @@ export const LoginView: React.FC = () => {
             <button
               onClick={handleGoogleLogin}
               disabled={isSubmitting || loading}
-              className="w-full h-11 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-medium text-sm flex items-center justify-center gap-3 transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="tactile-btn w-full h-11 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-medium text-sm flex items-center justify-center gap-3 transition-all duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {/* Google G SVG */}
               <svg className="w-4 h-4" viewBox="0 0 24 24">

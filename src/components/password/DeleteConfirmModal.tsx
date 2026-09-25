@@ -62,7 +62,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] text-[#A1A1AA] hover:text-[#F7F7FA] text-xs font-medium transition-colors"
+            className="tactile-btn px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] text-[#A1A1AA] hover:text-[#F7F7FA] text-xs font-medium transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -70,7 +70,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             type="button"
             onClick={handleConfirmDelete}
             disabled={isDeleting}
-            className="px-4 py-2 rounded-lg bg-[#EF4444] hover:bg-red-600 text-white text-xs font-medium transition-all shadow-md shadow-red-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="tactile-btn px-4 py-2 rounded-lg bg-[#EF4444] hover:bg-red-600 text-white text-xs font-medium transition-all shadow-md shadow-red-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>{isDeleting ? 'Deleting...' : 'Delete Permanently'}</span>

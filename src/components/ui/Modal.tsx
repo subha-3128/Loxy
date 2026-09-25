@@ -40,7 +40,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-backdrop-fade"
       onClick={e => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -50,7 +50,7 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         ref={modalRef}
-        className={`w-full ${maxWidth} bg-[#111116] border border-[#27272F] rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]`}
+        className={`w-full ${maxWidth} bg-[#111116] border border-[#27272F] rounded-2xl shadow-2xl overflow-hidden animate-modal-pop flex flex-col max-h-[90vh]`}
       >
         <div className="flex items-start justify-between p-5 border-b border-[#27272F]">
           <div>

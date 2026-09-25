@@ -121,8 +121,8 @@ export const VaultUnlockModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08080C]/90 backdrop-blur-md">
-      <div className="w-full max-w-md bg-[#111116] border border-[#27272F] rounded-2xl p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08080C]/90 backdrop-blur-md animate-backdrop-fade">
+      <div className="w-full max-w-md bg-[#111116] border border-[#27272F] rounded-2xl p-6 sm:p-8 shadow-2xl animate-modal-pop">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-[#17171D] border border-[#27272F] flex items-center justify-center mb-4 text-[#8B5CF6]">
             {isConfigured ? <Lock className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
@@ -152,7 +152,7 @@ export const VaultUnlockModal: React.FC = () => {
               type="button"
               onClick={handleBiometricUnlock}
               disabled={isSubmitting}
-              className="w-full h-11 px-4 rounded-xl bg-[#17171D] hover:bg-[#1D1D24] text-[#F7F7FA] border border-[#8B5CF6]/50 font-medium text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+              className="tactile-btn w-full h-11 px-4 rounded-xl bg-[#17171D] hover:bg-[#1D1D24] text-[#F7F7FA] border border-[#8B5CF6]/50 font-medium text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer"
             >
               <Fingerprint className="w-4 h-4 text-[#8B5CF6]" />
               <span>Unlock with Touch ID / Biometrics</span>
@@ -235,7 +235,7 @@ export const VaultUnlockModal: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting || loading}
-            className="w-full h-11 mt-2 rounded-xl bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-medium text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-purple-900/20"
+            className="tactile-btn w-full h-11 mt-2 rounded-xl bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-medium text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-purple-900/20"
           >
             <KeyRound className="w-4 h-4" />
             <span>

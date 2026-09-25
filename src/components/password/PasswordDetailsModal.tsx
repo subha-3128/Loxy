@@ -190,7 +190,7 @@ export const PasswordDetailsModal: React.FC<PasswordDetailsModalProps> = ({
               onClose();
               onDelete(item);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#EF4444] hover:bg-red-950/40 border border-transparent hover:border-red-900/50 transition-colors cursor-pointer"
+            className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#EF4444] hover:bg-red-950/40 border border-transparent hover:border-red-900/50 transition-colors cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Delete</span>
@@ -199,7 +199,7 @@ export const PasswordDetailsModal: React.FC<PasswordDetailsModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors"
+              className="tactile-btn px-3.5 py-1.5 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -208,7 +208,7 @@ export const PasswordDetailsModal: React.FC<PasswordDetailsModalProps> = ({
                 onClose();
                 onEdit(item);
               }}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-xs font-medium text-white transition-all shadow-md shadow-purple-900/20 cursor-pointer"
+              className="tactile-btn flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-xs font-medium text-white transition-all shadow-md shadow-purple-900/20 cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5" />
               <span>Edit</span>

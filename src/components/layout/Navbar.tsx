@@ -41,12 +41,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="h-16 border-b border-[#27272F] bg-[#111116]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-4">
+    <header className="border-b border-[#27272F] bg-[#111116]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-4 pt-[env(safe-area-inset-top,0px)] h-[calc(4rem+env(safe-area-inset-top,0px))]">
       {/* Brand & Mobile Hamburger */}
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#17171D] rounded-lg transition-colors"
+          className="tactile-btn lg:hidden p-2 text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#17171D] rounded-lg transition-colors cursor-pointer"
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {canInstall && (
           <button
             onClick={handleInstall}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8B5CF6]/15 hover:bg-[#8B5CF6]/25 border border-[#8B5CF6]/40 text-xs font-medium text-purple-300 transition-colors cursor-pointer"
+            className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8B5CF6]/15 hover:bg-[#8B5CF6]/25 border border-[#8B5CF6]/40 text-xs font-medium text-purple-300 transition-colors cursor-pointer"
             title="Install Loxy App on this device"
           >
             <Download className="w-3.5 h-3.5 text-[#8B5CF6]" />
@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
+          className="tactile-btn p-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
           title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
           aria-label="Toggle dark/light mode"
         >
@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Quick Lock Button */}
         <button
           onClick={handleLock}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
+          className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
           title={`Lock vault now (Auto-lock in ${autoLockMinutes ? autoLockMinutes + 'm' : 'Never'})`}
         >
           <Lock className="w-3.5 h-3.5 text-[#8B5CF6]" />
@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => signOut()}
-            className="p-1.5 text-[#71717A] hover:text-[#EF4444] hover:bg-[#17171D] rounded-lg transition-colors cursor-pointer"
+            className="tactile-btn p-1.5 text-[#71717A] hover:text-[#EF4444] hover:bg-[#17171D] rounded-lg transition-colors cursor-pointer"
             title="Sign out of Loxy"
             aria-label="Sign out"
           >

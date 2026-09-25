@@ -85,7 +85,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-6 relative overflow-hidden animate-card-in">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
       </div>
 
       {/* HaveIBeenPwned k-Anonymity Breach Scanner */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-[#F7F7FA] flex items-center gap-2">
@@ -171,7 +171,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           <button
             onClick={handleAuditBreaches}
             disabled={isAuditingBreaches || items.length === 0}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-orange-950/40 hover:bg-orange-900/60 border border-orange-800/50 text-xs font-medium text-orange-200 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+            className="tactile-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-orange-950/40 hover:bg-orange-900/60 border border-orange-800/50 text-xs font-medium text-orange-200 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAuditingBreaches ? 'animate-spin' : ''}`} />
             <span>{isAuditingBreaches ? 'Auditing Vault...' : 'Scan Known Breaches'}</span>

@@ -24,6 +24,12 @@
     --danger-muted: rgba(239, 68, 68, 0.15);
     --warning: #F59E0B;
     --warning-muted: rgba(245, 158, 11, 0.15);
+
+    /* Safe Area Inset Tokens */
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
   }
 
   html.light,
@@ -45,15 +51,26 @@
     --text-dim: #64748B;
   }
 
+  html {
+    /* Prevent bouncy rubber-banding on standalone PWA */
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--bg-base);
     color: var(--text-main);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    min-height: 100dvh;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    /* Eliminate mobile 300ms tap delay & unwanted tap highlight */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
-  /* Custom scrollbars */
+  /* Custom smooth scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -72,13 +89,161 @@
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
+
+  /* Buttons & touchables have no text selection */
+  button, [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
 }
 
-/* Glass & Glow subtle utilities */
+/* ==========================================================================
+   60/120fps Hardware-Accelerated Keyframes & Motion
+   ========================================================================== */
+
+@keyframes card-spring-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modal-spring-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes toast-spring-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  70% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ambient-breathing {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0.42;
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ==========================================================================
+   Motion & Animation Utility Classes
+   ========================================================================== */
+
+/* Card Entrance with buttery spring */
+.animate-card-in {
+  animation: card-spring-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Modal Animations */
+.animate-modal-pop {
+  animation: modal-spring-pop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-backdrop-fade {
+  animation: modal-backdrop-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-toast-pop {
+  animation: toast-spring-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Ambient breathing aura */
+.ambient-glow-pulse {
+  animation: ambient-breathing 8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Shimmer loader */
+.shimmer-active {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer-sweep 2s infinite;
+}
+
+/* ==========================================================================
+   Tactile & Micro-Interaction Component Classes
+   ========================================================================== */
+
+/* Tactile Spring Press Feedback */
+.tactile-btn {
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  will-change: transform;
+}
+.tactile-btn:active {
+  transform: scale(0.96);
+}
+
+/* Premium Password / Feature Card */
+.vault-card-interactive {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  will-change: transform, box-shadow;
+}
+.vault-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -10px rgba(139, 92, 246, 0.18);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+.vault-card-interactive:active {
+  transform: scale(0.985);
+}
+
+/* Glass & Glow utilities */
 .glass-panel {
   background-color: rgba(17, 17, 22, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid #27272F;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .focus-ring {
@@ -87,6 +252,34 @@
 .focus-ring:focus-visible {
   outline: 2px solid #8B5CF6;
   outline-offset: 1px;
+}
+
+/* Safe Area Inset Helpers */
+.pwa-safe-top {
+  padding-top: max(var(--sat), 0.75rem);
+}
+.pwa-safe-bottom {
+  padding-bottom: max(var(--sab), 0.5rem);
+}
+.pwa-content-pb {
+  padding-bottom: calc(5rem + var(--sab));
+}
+
+/* PWA Standalone Mode Native App Tuning */
+@media (display-mode: standalone) {
+  body {
+    /* Prevent bounce on iOS standalone */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  header {
+    padding-top: max(var(--sat), 0.5rem);
+    height: calc(4rem + var(--sat));
+  }
 }
 
 /* ==========================================================================
@@ -103,8 +296,10 @@ html.light .bg-\[\#111116\] {
   background-color: #FFFFFF !important;
 }
 
-html.light .bg-\[\#111116\]\/80 {
-  background-color: rgba(255, 255, 255, 0.90) !important;
+html.light .bg-\[\#111116\]\/80,
+html.light .bg-\[\#111116\]\/90,
+html.light .bg-\[\#111116\]\/95 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
 }
 
 html.light .bg-\[\#17171D\] {
@@ -172,8 +367,13 @@ html.light textarea:focus {
 }
 
 html.light .glass-panel {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
   border-color: #E2E8F0 !important;
+}
+
+html.light .vault-card-interactive:hover {
+  box-shadow: 0 14px 30px -10px rgba(124, 58, 237, 0.14) !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
 }
 
 html.light ::-webkit-scrollbar-thumb {

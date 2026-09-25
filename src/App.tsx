@@ -40,6 +40,20 @@ const LoxyApp: React.FC = () => {
   const [viewingItem, setViewingItem] = useState<DecryptedVaultItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<DecryptedVaultItem | null>(null);
 
+  // Network Offline / PWA Status State
+  const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' ? !navigator.onLine : false);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Filter items locally (Zero-knowledge local filtering)
   const filteredItems = useMemo(() => {
     let result = [...items];
@@ -109,7 +123,18 @@ const LoxyApp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#08080C] text-[#F7F7FA] flex flex-col">
+    <div className="min-h-screen bg-[#08080C] text-[#F7F7FA] flex flex-col relative overflow-x-hidden">
+      {/* Ambient background depth glow */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none ambient-glow-pulse" />
+
+      {/* Offline Status Pill Notification */}
+      {isOffline && (
+        <div className="fixed top-18 sm:top-20 left-1/2 -translate-x-1/2 z-40 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 backdrop-blur-md text-amber-300 text-xs font-medium flex items-center gap-2 shadow-lg animate-toast-pop">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          <span>Offline Mode • Vault cached locally</span>
+        </div>
+      )}
+
       {/* Vault Unlock / Setup Overlay if locked */}
       <VaultUnlockModal />
 
@@ -125,7 +150,7 @@ const LoxyApp: React.FC = () => {
       />
 
       {/* Content Area with Sidebar & Main View */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto pb-20 lg:pb-8">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto pwa-content-pb lg:pb-8 relative z-10">
         <Sidebar
           currentView={currentView}
           onSelectView={setCurrentView}
@@ -170,7 +195,7 @@ const LoxyApp: React.FC = () => {
                   {/* Sort Toggle */}
                   <button
                     onClick={() => setSortBy(sortBy === 'name' ? 'recent' : 'name')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111116] hover:bg-[#17171D] border border-[#27272F] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
+                    className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111116] hover:bg-[#17171D] border border-[#27272F] text-xs font-medium text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
                     title="Toggle sort order"
                   >
                     <ArrowUpDown className="w-3.5 h-3.5 text-[#8B5CF6]" />
@@ -183,7 +208,7 @@ const LoxyApp: React.FC = () => {
                       setEditingItem(null);
                       setIsAddModalOpen(true);
                     }}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-all shadow-md shadow-purple-900/20 active:scale-[0.99] cursor-pointer"
+                    className="tactile-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-all shadow-md shadow-purple-900/20 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Password</span>

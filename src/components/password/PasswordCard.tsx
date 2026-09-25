@@ -78,12 +78,12 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
   return (
     <div
       onClick={() => onViewDetails(item)}
-      className="group bg-[#111116] hover:bg-[#17171D] border border-[#27272F] hover:border-[#3A3A46] rounded-xl p-4 sm:p-5 transition-all duration-150 cursor-pointer relative shadow-sm"
+      className="group bg-[#111116] border border-[#27272F] rounded-2xl p-4 sm:p-5 cursor-pointer relative shadow-sm vault-card-interactive animate-card-in select-none"
     >
       <div className="flex items-start justify-between gap-3">
         {/* Left: Favicon & Details */}
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#17171D] group-hover:bg-[#1D1D24] border border-[#27272F] flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-[#17171D] group-hover:bg-[#1D1D24] border border-[#27272F] flex items-center justify-center shrink-0 overflow-hidden transition-colors">
             {faviconUrl ? (
               <img
                 src={faviconUrl}
@@ -103,7 +103,7 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
               <h3 className="font-semibold text-sm text-[#F7F7FA] truncate">
                 {item.website}
               </h3>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1D1D24] text-[#A1A1AA] border border-[#27272F] shrink-0">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1D1D24] text-[#A1A1AA] border border-[#27272F] shrink-0 font-medium">
                 {item.category}
               </span>
             </div>
@@ -117,13 +117,13 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
         <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
           <button
             onClick={handleFavoriteToggle}
-            className="p-1.5 rounded-lg text-[#71717A] hover:text-amber-400 hover:bg-[#1D1D24] transition-colors"
+            className="tactile-btn p-1.5 rounded-lg text-[#71717A] hover:text-amber-400 hover:bg-[#1D1D24] transition-colors cursor-pointer"
             title={item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
             aria-label="Toggle favorite"
           >
             <Star
-              className={`w-4 h-4 ${
-                item.is_favorite ? 'fill-amber-400 text-amber-400' : ''
+              className={`w-4 h-4 transition-transform duration-200 ${
+                item.is_favorite ? 'fill-amber-400 text-amber-400 scale-110' : ''
               }`}
             />
           </button>
@@ -131,7 +131,7 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors"
+              className="tactile-btn p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors cursor-pointer"
               aria-label="Options menu"
             >
               <MoreVertical className="w-4 h-4" />
@@ -209,7 +209,7 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
         <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => setShowPassword(!showPassword)}
-            className="p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors"
+            className="tactile-btn p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors cursor-pointer"
             title={showPassword ? 'Hide password' : 'Show password'}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
@@ -218,7 +218,7 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
 
           <button
             onClick={e => handleCopy(item.username, 'username', e)}
-            className="p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors flex items-center gap-1 text-[11px]"
+            className="tactile-btn p-1.5 rounded-lg text-[#71717A] hover:text-[#F7F7FA] hover:bg-[#1D1D24] transition-colors flex items-center gap-1 text-[11px] cursor-pointer"
             title="Copy username"
             aria-label="Copy username"
           >
@@ -231,14 +231,14 @@ export const PasswordCard: React.FC<PasswordCardProps> = ({
 
           <button
             onClick={e => handleCopy(item.password, 'password', e)}
-            className="px-2.5 py-1 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="tactile-btn px-2.5 py-1 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors flex items-center gap-1.5 cursor-pointer"
             title="Copy password"
             aria-label="Copy password"
           >
             {copiedField === 'password' ? (
               <>
                 <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                <span className="text-[11px] text-[#22C55E]">Copied</span>
+                <span className="text-[11px] text-[#22C55E] font-medium">Copied</span>
               </>
             ) : (
               <>

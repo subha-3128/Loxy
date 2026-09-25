@@ -14,11 +14,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   onOpenAddModal,
 }) => {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 h-16 bg-[#111116]/95 border-t border-[#27272F] backdrop-blur-md px-3 flex items-center justify-around">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111116]/95 border-t border-[#27272F] backdrop-blur-xl px-4 flex items-center justify-around h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] shadow-2xl">
       <button
         onClick={() => onSelectView('dashboard')}
-        className={`flex flex-col items-center gap-1 p-1 text-[11px] ${
-          currentView === 'dashboard' ? 'text-[#8B5CF6] font-medium' : 'text-[#71717A]'
+        className={`tactile-btn flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[11px] cursor-pointer transition-colors ${
+          currentView === 'dashboard'
+            ? 'text-[#8B5CF6] font-semibold bg-[#8B5CF6]/10'
+            : 'text-[#71717A] hover:text-[#A1A1AA]'
         }`}
       >
         <KeyRound className="w-4 h-4" />
@@ -27,18 +29,20 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
       <button
         onClick={() => onSelectView('favorites')}
-        className={`flex flex-col items-center gap-1 p-1 text-[11px] ${
-          currentView === 'favorites' ? 'text-[#8B5CF6] font-medium' : 'text-[#71717A]'
+        className={`tactile-btn flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[11px] cursor-pointer transition-colors ${
+          currentView === 'favorites'
+            ? 'text-[#8B5CF6] font-semibold bg-[#8B5CF6]/10'
+            : 'text-[#71717A] hover:text-[#A1A1AA]'
         }`}
       >
         <Star className="w-4 h-4" />
         <span>Favorites</span>
       </button>
 
-      {/* Floating Center Add Button */}
+      {/* Floating Elevated Center Add Button */}
       <button
         onClick={onOpenAddModal}
-        className="w-10 h-10 -mt-5 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center shadow-lg shadow-purple-900/40 active:scale-95 transition-transform"
+        className="tactile-btn w-12 h-12 -mt-6 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#A78BFA] text-white flex items-center justify-center shadow-xl shadow-purple-600/40 ring-4 ring-[#111116] cursor-pointer"
         aria-label="Add new password"
       >
         <Plus className="w-5 h-5" />
@@ -46,8 +50,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
       <button
         onClick={() => onSelectView('security')}
-        className={`flex flex-col items-center gap-1 p-1 text-[11px] ${
-          currentView === 'security' ? 'text-[#8B5CF6] font-medium' : 'text-[#71717A]'
+        className={`tactile-btn flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[11px] cursor-pointer transition-colors ${
+          currentView === 'security'
+            ? 'text-[#8B5CF6] font-semibold bg-[#8B5CF6]/10'
+            : 'text-[#71717A] hover:text-[#A1A1AA]'
         }`}
       >
         <ShieldCheck className="w-4 h-4" />
@@ -56,8 +62,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
       <button
         onClick={() => onSelectView('settings')}
-        className={`flex flex-col items-center gap-1 p-1 text-[11px] ${
-          currentView === 'settings' ? 'text-[#8B5CF6] font-medium' : 'text-[#71717A]'
+        className={`tactile-btn flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[11px] cursor-pointer transition-colors ${
+          currentView === 'settings'
+            ? 'text-[#8B5CF6] font-semibold bg-[#8B5CF6]/10'
+            : 'text-[#71717A] hover:text-[#A1A1AA]'
         }`}
       >
         <Settings className="w-4 h-4" />

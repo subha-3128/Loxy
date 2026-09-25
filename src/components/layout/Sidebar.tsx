@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onOpenAddModal();
               onCloseMobile();
             }}
-            className="w-full h-10 px-3.5 rounded-xl bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-900/20 active:scale-[0.99] cursor-pointer"
+            className="tactile-btn w-full h-10 px-3.5 rounded-xl bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-900/20 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Password</span>

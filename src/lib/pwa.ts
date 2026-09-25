@@ -1,6 +1,15 @@
 /**
- * Progressive Web App (PWA) Registration and Lifecycle Manager
+ * Loxy High-Performance PWA Manager
+ * Powered by Workbox & vite-plugin-pwa
+ *
+ * Provides:
+ * - Instant offline-first app-shell loading via byte-hashed asset precaching
+ * - Background auto-updates with zero user friction
+ * - Native install prompts (iOS / Android / Desktop)
+ * - Safe area & standalone display mode detection
  */
+
+import { registerSW } from 'virtual:pwa-register';
 
 export interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -16,46 +25,21 @@ const installListeners = new Set<(canInstall: boolean) => void>();
 
 export function registerServiceWorker() {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then(reg => {
-          console.log('[Loxy PWA] Service worker registered:', reg.scope);
-
-          // Check for service worker updates periodically
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('[Loxy PWA] New update available.');
-                }
-              });
-            }
-          });
-
-          // Check for updates when PWA regains focus
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              reg.update().catch(() => {});
-            }
-          });
-        })
-        .catch(err => {
-          console.error('[Loxy PWA] Service worker registration failed:', err);
-        });
-
-      // Reload when new service worker takes control
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
-      });
+    const updateSW = registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        console.log('[Loxy PWA] New build available. Updating cache in background...');
+        updateSW(true);
+      },
+      onOfflineReady() {
+        console.log('[Loxy PWA] App shell precached. 100% offline-ready.');
+      },
+      onRegisterError(error) {
+        console.error('[Loxy PWA] Registration error:', error);
+      },
     });
 
-    // Capture install prompt
+    // Capture browser install prompt
     window.addEventListener('beforeinstallprompt', (e: Event) => {
       e.preventDefault();
       deferredPrompt = e as BeforeInstallPromptEvent;
@@ -65,7 +49,7 @@ export function registerServiceWorker() {
     window.addEventListener('appinstalled', () => {
       deferredPrompt = null;
       installListeners.forEach(listener => listener(false));
-      console.log('[Loxy PWA] App was installed successfully.');
+      console.log('[Loxy PWA] App installed successfully.');
     });
   }
 }
@@ -96,7 +80,7 @@ export function isAppInstalled(): boolean {
   if (typeof window === 'undefined') return false;
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    // Safari iOS standalone check
+    window.matchMedia('(display-mode: window-controls-overlay)').matches ||
     Boolean((navigator as unknown as { standalone?: boolean }).standalone)
   );
 }

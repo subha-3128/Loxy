@@ -220,7 +220,7 @@ export const SettingsView: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Account Section */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-[#8B5CF6]" />
@@ -228,7 +228,7 @@ export const SettingsView: React.FC = () => {
           </div>
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-red-950/40 border border-[#27272F] hover:border-red-800 text-xs font-medium text-[#EF4444] transition-colors cursor-pointer"
+            className="tactile-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17171D] hover:bg-red-950/40 border border-[#27272F] hover:border-red-800 text-xs font-medium text-[#EF4444] transition-colors cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -255,7 +255,7 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Appearance & Theme Settings */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex items-center gap-2">
           <Sun className="w-5 h-5 text-[#8B5CF6]" />
           <h2 className="text-sm font-semibold text-[#F7F7FA]">Appearance & Theme</h2>
@@ -272,7 +272,7 @@ export const SettingsView: React.FC = () => {
               setTheme('dark');
               showToast('Theme set to Dark', 'info');
             }}
-            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
               theme === 'dark'
                 ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
                 : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
@@ -288,7 +288,7 @@ export const SettingsView: React.FC = () => {
               setTheme('light');
               showToast('Theme set to Light', 'info');
             }}
-            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
               theme === 'light'
                 ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-500 shadow-sm shadow-purple-500/10'
                 : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
@@ -304,7 +304,7 @@ export const SettingsView: React.FC = () => {
               setTheme('system');
               showToast('Theme set to System', 'info');
             }}
-            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+            className={`tactile-btn flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
               theme === 'system'
                 ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
                 : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
@@ -464,7 +464,7 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* CSV Password Importer */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex items-center gap-2">
           <Upload className="w-5 h-5 text-[#8B5CF6]" />
           <h2 className="text-sm font-semibold text-[#F7F7FA]">Import Passwords (CSV)</h2>
@@ -485,7 +485,7 @@ export const SettingsView: React.FC = () => {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isImporting}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer disabled:opacity-50"
+            className="tactile-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-xs font-medium text-[#F7F7FA] transition-colors cursor-pointer disabled:opacity-50"
           >
             <FileSpreadsheet className="w-4 h-4 text-[#8B5CF6]" />
             <span>{isImporting ? 'Encrypting & Importing...' : 'Select CSV File to Import'}</span>
@@ -500,7 +500,7 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Progressive Web App (PWA) Card */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="w-5 h-5 text-[#8B5CF6]" />
@@ -525,7 +525,7 @@ export const SettingsView: React.FC = () => {
           {canInstallPwa && !isInstalled ? (
             <button
               onClick={handleInstallPwa}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors cursor-pointer"
+              className="tactile-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Install Loxy on This Device</span>
@@ -544,7 +544,7 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Database / Supabase Status */}
-      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4 animate-card-in">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Database className="w-5 h-5 text-[#8B5CF6]" />
