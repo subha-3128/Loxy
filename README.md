@@ -77,6 +77,11 @@ Loxy was built for developers, security-conscious individuals, and teams who wan
 - **Encrypted JSON Vault Backup**
   - Export full zero-knowledge encrypted JSON vault backups (containing salts, verification tokens, and encrypted items) for offline archiving.
 
+- **Progressive Web App (PWA) & Offline Shell**
+  - Installable as a standalone native app on macOS, Windows, iOS, and Android.
+  - Custom Service Worker precaches the cryptographic application shell for instant offline loading anywhere.
+  - Zero sensitive database credentials or API calls are ever stored in unencrypted Service Worker caches.
+
 - **Offline Developer Sandbox Fallback**
   - If Supabase environment variables are omitted, Loxy seamlessly boots in local encrypted storage mode for testing.
 

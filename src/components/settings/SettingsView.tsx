@@ -23,7 +23,10 @@ import {
   LogOut,
   Fingerprint,
   FileSpreadsheet,
+  Smartphone,
+  Laptop,
 } from 'lucide-react';
+import { subscribeToInstallPrompt, promptPwaInstall, isAppInstalled } from '../../lib/pwa';
 
 export const SettingsView: React.FC = () => {
   const { user, signOut, isSupabaseConnected } = useAuth();
@@ -53,6 +56,24 @@ export const SettingsView: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importStats, setImportStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // PWA State
+  const [canInstallPwa, setCanInstallPwa] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    setIsInstalled(isAppInstalled());
+    const unsubscribe = subscribeToInstallPrompt(setCanInstallPwa);
+    return unsubscribe;
+  }, []);
+
+  const handleInstallPwa = async () => {
+    const installed = await promptPwaInstall();
+    if (installed) {
+      showToast('Loxy installed successfully!', 'success');
+      setIsInstalled(true);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -409,6 +430,50 @@ export const SettingsView: React.FC = () => {
             ✓ {importStats}
           </div>
         )}
+      </div>
+
+      {/* Progressive Web App (PWA) Card */}
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Smartphone className="w-5 h-5 text-[#8B5CF6]" />
+            <h2 className="text-sm font-semibold text-[#F7F7FA]">Progressive Web App (PWA)</h2>
+          </div>
+          <span
+            className={`text-xs px-2.5 py-1 rounded-full border font-medium ${
+              isInstalled
+                ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40'
+                : 'bg-[#17171D] text-[#A1A1AA] border-[#27272F]'
+            }`}
+          >
+            {isInstalled ? 'Installed as App' : 'Offline Shell Ready'}
+          </span>
+        </div>
+
+        <p className="text-xs text-[#A1A1AA] leading-relaxed">
+          Install Loxy directly onto your machine or mobile home screen as a standalone app. The Service Worker precaches the cryptographic application shell for instant launching anywhere.
+        </p>
+
+        <div className="flex items-center gap-3 pt-1">
+          {canInstallPwa && !isInstalled ? (
+            <button
+              onClick={handleInstallPwa}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Install Loxy on This Device</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-[#71717A]">
+              <Laptop className="w-4 h-4 text-[#8B5CF6]" />
+              <span>
+                {isInstalled
+                  ? 'Running in standalone desktop/mobile app window.'
+                  : 'Install via browser address bar or mobile "Add to Home Screen".'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Database / Supabase Status */}

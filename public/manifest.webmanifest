@@ -1,0 +1,52 @@
+{
+  "id": "/",
+  "name": "Loxy — Personal Password Vault",
+  "short_name": "Loxy",
+  "description": "Zero-knowledge personal password vault with client-side AES-GCM 256 encryption. Plaintext never leaves your machine.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#08080C",
+  "theme_color": "#08080C",
+  "categories": [
+    "security",
+    "utilities",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "All Passwords",
+      "url": "/",
+      "description": "View all encrypted credentials"
+    },
+    {
+      "name": "Security Health",
+      "url": "/#security",
+      "description": "Scan weak and breached credentials"
+    }
+  ]
+}

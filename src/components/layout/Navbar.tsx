@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useVault } from '../../contexts/VaultContext';
 import { useToast } from '../ui/Toast';
-import { Lock, Search, LogOut, Menu } from 'lucide-react';
+import { Lock, Search, LogOut, Menu, Download } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
+import { subscribeToInstallPrompt, promptPwaInstall } from '../../lib/pwa';
 
 interface NavbarProps {
   searchQuery: string;
@@ -20,6 +21,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { user, signOut } = useAuth();
   const { lockVault, autoLockMinutes } = useVault();
   const { showToast } = useToast();
+  const [canInstall, setCanInstall] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToInstallPrompt(setCanInstall);
+    return unsubscribe;
+  }, []);
+
+  const handleInstall = async () => {
+    const ok = await promptPwaInstall();
+    if (ok) showToast('Loxy App installed!', 'success');
+  };
 
   const handleLock = () => {
     lockVault();
@@ -67,6 +79,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* User Actions */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* PWA Install Button */}
+        {canInstall && (
+          <button
+            onClick={handleInstall}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8B5CF6]/15 hover:bg-[#8B5CF6]/25 border border-[#8B5CF6]/40 text-xs font-medium text-purple-300 transition-colors cursor-pointer"
+            title="Install Loxy App on this device"
+          >
+            <Download className="w-3.5 h-3.5 text-[#8B5CF6]" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
+        )}
+
         {/* Quick Lock Button */}
         <button
           onClick={handleLock}
