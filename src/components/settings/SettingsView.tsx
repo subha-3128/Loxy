@@ -459,23 +459,34 @@ export const SettingsView: React.FC = () => {
 
         {/* ── 2. Appearance ── */}
         <SectionCard delay={60}>
-          <SectionHeader icon={Sun} label="Appearance" />
-          <div className="flex gap-2">
-            {[
-              { id: 'dark', label: 'Dark', Icon: Moon },
-              { id: 'light', label: 'Light', Icon: Sun },
-              { id: 'system', label: 'System', Icon: Monitor },
-            ].map(({ id, label, Icon: ThemeIcon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => { setTheme(id as 'dark' | 'light' | 'system'); showToast(`Theme: ${label}`, 'info'); }}
-                className={`theme-pill ${theme === id ? 'theme-pill--active' : ''}`}
-              >
-                <ThemeIcon className="w-5 h-5" />
-                {label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="settings-icon-wrap"><Sun className="w-4 h-4" /></div>
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Appearance</span>
+            </div>
+            <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)' }}>
+              {[
+                { id: 'dark', Icon: Moon, title: 'Dark' },
+                { id: 'system', Icon: Monitor, title: 'System' },
+                { id: 'light', Icon: Sun, title: 'Light' },
+              ].map(({ id, Icon: ThemeIcon, title }) => (
+                <button
+                  key={id}
+                  type="button"
+                  title={title}
+                  onClick={() => { setTheme(id as 'dark' | 'light' | 'system'); showToast(`Theme: ${title}`, 'info'); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                  style={theme === id ? {
+                    background: 'rgba(139,92,246,0.18)',
+                    color: '#a78bfa',
+                    boxShadow: '0 0 0 1px rgba(139,92,246,0.25)'
+                  } : { color: 'var(--text-muted)' }}
+                >
+                  <ThemeIcon className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{title}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </SectionCard>
 
@@ -483,19 +494,22 @@ export const SettingsView: React.FC = () => {
         <SectionCard delay={120}>
           <SectionHeader icon={Shield} label="Vault Security" />
 
-          {/* Auto-lock */}
-          <div className="mb-2">
-            <p className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-muted)' }}>Auto-lock after inactivity</p>
-            <div
-              className="flex gap-1 p-1 rounded-xl"
-              style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)' }}
-            >
+          {/* Auto-lock compact row */}
+          <div className="settings-row mb-2">
+            <div className="flex-1 min-w-0 pr-4">
+              <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>Auto-lock</p>
+            </div>
+            <div className="flex gap-1 p-0.5 rounded-lg shrink-0" style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)' }}>
               {autoLockOptions.map(opt => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => handleAutoLockChange(opt.value)}
-                  className={`lock-seg ${autoLockMinutes === opt.value ? 'lock-seg--active' : ''}`}
+                  className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer"
+                  style={autoLockMinutes === opt.value ? {
+                    background: 'rgba(139,92,246,0.18)', color: '#a78bfa',
+                    boxShadow: '0 0 0 1px rgba(139,92,246,0.25)'
+                  } : { color: 'var(--text-muted)' }}
                 >
                   {opt.label}
                 </button>
