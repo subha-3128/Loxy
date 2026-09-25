@@ -4,7 +4,7 @@ import { ShieldCheck, AlertCircle } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 
 export const LoginView: React.FC = () => {
-  const { signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 

@@ -23,15 +23,12 @@ import {
   LogOut,
   Fingerprint,
   Smartphone,
-  Laptop,
   Sun,
   Moon,
   Monitor,
   ChevronRight,
   Eye,
   EyeOff,
-  Wifi,
-  WifiOff,
 } from 'lucide-react';
 import { subscribeToInstallPrompt, promptPwaInstall, isAppInstalled } from '../../lib/pwa';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -143,23 +140,9 @@ export const SettingsView: React.FC = () => {
   const [importStats, setImportStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // PWA
-  const [canInstallPwa, setCanInstallPwa] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-
   useEffect(() => {
     setIsInstalled(isAppInstalled());
-    const unsubscribe = subscribeToInstallPrompt(setCanInstallPwa);
-    return unsubscribe;
   }, []);
-
-  const handleInstallPwa = async () => {
-    const installed = await promptPwaInstall();
-    if (installed) {
-      showToast('Loxy installed successfully!', 'success');
-      setIsInstalled(true);
-    }
-  };
 
   useEffect(() => {
     if (user) {
