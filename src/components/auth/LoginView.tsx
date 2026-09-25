@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { ShieldCheck, Lock, KeyRound, Terminal, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, KeyRound, AlertCircle } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
-  const { signInWithGoogle, signInDemo, isSupabaseConnected, loading } = useAuth();
+  const { signInWithGoogle, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -17,10 +17,6 @@ export const LoginView: React.FC = () => {
       setError(msg);
       setIsSubmitting(false);
     }
-  };
-
-  const handleDeveloperDemo = () => {
-    signInDemo('alex.developer@loxy.vault', 'Alex Vance');
   };
 
   return (
@@ -60,7 +56,7 @@ export const LoginView: React.FC = () => {
           )}
 
           {/* Actions */}
-          <div className="space-y-3.5">
+          <div>
             <button
               onClick={handleGoogleLogin}
               disabled={isSubmitting || loading}
@@ -85,28 +81,8 @@ export const LoginView: React.FC = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>{isSubmitting ? 'Authenticating...' : 'Continue with Google'}</span>
+              <span>{isSubmitting ? 'Authenticating with Google...' : 'Continue with Google'}</span>
             </button>
-
-            {/* Developer Fast Sandbox Login */}
-            <div className="pt-2">
-              <div className="relative flex py-2 items-center">
-                <div className="flex-grow border-t border-[#27272F]" />
-                <span className="flex-shrink mx-3 text-[11px] text-[#71717A] uppercase tracking-wider">
-                  or
-                </span>
-                <div className="flex-grow border-t border-[#27272F]" />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleDeveloperDemo}
-                className="w-full h-10 px-4 rounded-xl bg-[#17171D] hover:bg-[#1D1D24] text-[#F7F7FA] border border-[#27272F] text-xs font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <Terminal className="w-3.5 h-3.5 text-[#8B5CF6]" />
-                <span>Enter Developer Sandbox</span>
-              </button>
-            </div>
           </div>
 
           {/* Security Features List */}
@@ -118,7 +94,7 @@ export const LoginView: React.FC = () => {
             <span className="text-[#71717A]">•</span>
             <span>Zero Plaintext</span>
             <span className="text-[#71717A]">•</span>
-            <span>{isSupabaseConnected ? 'Supabase Connected' : 'Local Sandbox Mode'}</span>
+            <span>Supabase Auth</span>
           </div>
         </div>
 
