@@ -709,23 +709,6 @@ export const SettingsView: React.FC = () => {
             badgeOk={isInstalled}
           />
 
-          <RowItem
-            title="Install Loxy on This Device"
-            subtitle="Add to home screen or desktop for a fast, standalone app experience with offline support."
-            right={
-              canInstallPwa && !isInstalled ? (
-                <button type="button" onClick={handleInstallPwa} className="settings-btn-primary">
-                  <Download className="w-3.5 h-3.5" />
-                  Install
-                </button>
-              ) : (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                  <Laptop className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
-                  {isInstalled ? 'Running as app' : 'Use browser prompt'}
-                </div>
-              )
-            }
-          />
         </SectionCard>
 
         {/* ── 6. Database Status ── */}
@@ -737,27 +720,6 @@ export const SettingsView: React.FC = () => {
             badgeOk={isSupabaseConnected}
           />
 
-          <RowItem
-            title={isSupabaseConnected ? 'Supabase PostgreSQL' : 'Local Encrypted Sandbox'}
-            subtitle={
-              isSupabaseConnected
-                ? 'Remote database with Row Level Security. All records stored as authenticated ciphertext.'
-                : 'All records stored client-side in encrypted form using AES-GCM 256-bit.'
-            }
-            right={
-              isSupabaseConnected
-                ? <Wifi className="w-4 h-4" style={{ color: '#4ade80' }} />
-                : <WifiOff className="w-4 h-4" style={{ color: '#a78bfa' }} />
-            }
-          />
-
-          <div
-            className="mt-3 p-3 rounded-xl font-mono text-[11px] space-y-1"
-            style={{ background: 'var(--surface-2)', border: '1px solid var(--card-border)', color: 'var(--text-muted)' }}
-          >
-            <div>Encryption: <span style={{ color: '#4ade80' }}>AES-GCM 256-bit + PBKDF2</span></div>
-            <div>Storage: <span style={{ color: '#a78bfa' }}>supabase/schema.sql</span></div>
-          </div>
         </SectionCard>
 
       </div>
