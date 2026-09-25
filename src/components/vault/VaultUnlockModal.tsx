@@ -56,10 +56,13 @@ export const VaultUnlockModal: React.FC = () => {
           showToast('Unlocked with Biometrics', 'success');
           return;
         }
+        // Password recovered but vault rejected it — credential is stale
+        setError('Biometric credential is outdated. Please unlock with your master password and re-enable biometrics in Settings.');
+      } else {
+        setError('Biometric authentication failed or was cancelled. Use your master password instead.');
       }
-      setError('Biometric authentication failed. Please enter your master password.');
     } catch {
-      setError('Biometric unlock was cancelled or unavailable.');
+      setError('Biometric unlock unavailable. Use your master password.');
     } finally {
       setIsSubmitting(false);
     }
