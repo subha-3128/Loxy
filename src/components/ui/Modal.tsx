@@ -40,7 +40,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-backdrop-fade"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-backdrop-fade overflow-y-auto"
       onClick={e => {
         if (e.target === e.currentTarget) onClose();
       }}

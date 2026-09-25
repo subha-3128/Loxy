@@ -21,7 +21,7 @@ export const LoginView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#08080C] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden select-none">
+    <div className="min-h-screen min-h-dvh bg-[#08080C] flex flex-col justify-center items-center px-4 py-12 relative overflow-y-auto select-none">
       {/* Subtle radial ambient background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-purple-600/15 blur-[130px] rounded-full pointer-events-none ambient-glow-pulse" />
 

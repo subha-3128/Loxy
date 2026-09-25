@@ -123,7 +123,7 @@ const LoxyApp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#08080C] text-[#F7F7FA] flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen min-h-dvh bg-[#08080C] text-[#F7F7FA] flex flex-col relative overflow-x-clip">
       {/* Ambient background depth glow */}
       <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none ambient-glow-pulse" />
 

@@ -121,7 +121,7 @@ export const VaultUnlockModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08080C]/90 backdrop-blur-md animate-backdrop-fade">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08080C]/90 backdrop-blur-md animate-backdrop-fade overflow-y-auto">
       <div className="w-full max-w-md bg-[#111116] border border-[#27272F] rounded-2xl p-6 sm:p-8 shadow-2xl animate-modal-pop">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-[#17171D] border border-[#27272F] flex items-center justify-center mb-4 text-[#8B5CF6]">
