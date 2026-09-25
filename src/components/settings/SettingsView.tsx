@@ -30,7 +30,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-
+import { subscribeToInstallPrompt, promptPwaInstall } from '../../lib/pwa';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /* ─── tiny helpers ─────────────────────────────────────── */
@@ -139,6 +139,26 @@ export const SettingsView: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importStats, setImportStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // PWA
+  const [canInstallPwa, setCanInstallPwa] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToInstallPrompt((can) => {
+      setCanInstallPwa(can);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleInstallPwa = async () => {
+    const installed = await promptPwaInstall();
+    if (installed) {
+      showToast('Loxy installed!', 'success');
+      setIsInstalled(true);
+      setCanInstallPwa(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -682,11 +702,22 @@ export const SettingsView: React.FC = () => {
 
         {/* ── 5. PWA ── */}
         <SectionCard delay={240}>
-          <SectionHeader
-            icon={Smartphone}
-            label="App Install"
-          />
-
+          <div className="flex items-center justify-between mb-0">
+            <div className="flex items-center gap-3">
+              <div className="settings-icon-wrap"><Smartphone className="w-4 h-4" /></div>
+              <h2 className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>App Install</h2>
+            </div>
+            {isInstalled ? (
+              <span className="settings-badge settings-badge--ok">Installed</span>
+            ) : canInstallPwa ? (
+              <button onClick={handleInstallPwa} className="settings-btn-primary">
+                <Download className="w-3.5 h-3.5" />
+                Install App
+              </button>
+            ) : (
+              <span className="settings-badge settings-badge--neutral">Use browser prompt</span>
+            )}
+          </div>
         </SectionCard>
 
         {/* ── 6. Database Status ── */}
