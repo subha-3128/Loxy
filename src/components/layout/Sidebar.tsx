@@ -146,7 +146,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:block w-60 border-r border-[#27272F] bg-[#111116] h-[calc(100vh-4rem)] sticky top-16 shrink-0 overflow-y-auto">
+      <aside
+        className="hidden lg:block w-60 bg-[#111116] h-[calc(100vh-4rem)] sticky top-16 shrink-0 overflow-y-auto"
+        style={{ boxShadow: '1px 0 0 0 rgba(255,255,255,0.04)' }}
+      >
         {content}
       </aside>
 
@@ -160,9 +163,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Mobile Drawer Panel */}
       <div
-        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[#111116] border-r border-[#27272F] transform transition-transform duration-200 ease-in-out ${
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[#111116] transform transition-transform duration-200 ease-in-out ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ boxShadow: '4px 0 24px rgba(0,0,0,0.5)' }}
       >
         <div className="h-16 border-b border-[#27272F] px-4 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono uppercase font-bold text-sm">

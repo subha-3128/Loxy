@@ -42,12 +42,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
-      className="sticky top-0 z-30 border-b"
+      className="sticky top-0 z-30"
       style={{
         background: 'var(--nav-bg, rgba(17,17,22,0.92))',
-        borderColor: 'var(--card-border)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: '0 1px 0 0 rgba(255,255,255,0.04), 0 4px 24px 0 rgba(0,0,0,0.35)',
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
