@@ -30,7 +30,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { isAppInstalled } from '../../lib/pwa';
+
 import { useTheme } from '../../contexts/ThemeContext';
 
 /* ─── tiny helpers ─────────────────────────────────────── */
@@ -685,8 +685,6 @@ export const SettingsView: React.FC = () => {
           <SectionHeader
             icon={Smartphone}
             label="App Install"
-            badge={isInstalled ? 'Installed' : 'Web App'}
-            badgeOk={isInstalled}
           />
 
         </SectionCard>
