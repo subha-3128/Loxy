@@ -1,6 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#111116"/>
-  <rect x="1" y="1" width="30" height="30" rx="7" fill="none" stroke="#27272F" stroke-width="1.5"/>
-  <!-- Keyhole / Shield Vault Icon -->
-  <path d="M16 6C12.686 6 10 8.686 10 12V15H9C7.895 15 7 15.895 7 17V24C7 25.105 7.895 26 9 26H23C24.105 26 25 25.105 25 24V17C25 15.895 24.105 15 23 15H22V12C22 8.686 19.314 6 16 6ZM12.5 12C12.5 10.067 14.067 8.5 16 8.5C17.933 8.5 19.5 10.067 19.5 12V15H12.5V12ZM16 18C16.828 18 17.5 18.672 17.5 19.5C17.5 20.063 17.189 20.554 16.732 20.806L17.2 23.2H14.8L15.268 20.806C14.811 20.554 14.5 20.063 14.5 19.5C14.5 18.672 15.172 18 16 18Z" fill="#8B5CF6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="purpleGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#6D28D9" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E1E26" />
+      <stop offset="100%" stop-color="#111116" />
+    </linearGradient>
+    <filter id="neon" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#8B5CF6" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Background container -->
+  <rect width="64" height="64" rx="16" fill="#08080C"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#27272F" stroke-width="1.5"/>
+
+  <!-- Hexagonal Padlock Shackle -->
+  <path d="M23 26 V19 L32 12 L41 19 V26" fill="none" stroke="url(#purpleGlow)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neon)"/>
+
+  <!-- Shield Body -->
+  <path d="M17 25 L32 19 L47 25 V38 C47 47 32 54 32 54 C32 54 17 47 17 38 Z" fill="url(#shieldGrad)" stroke="url(#purpleGlow)" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Inner Keyhole / Key Icon -->
+  <path d="M32 28 L36 31 V36 L34 38 V44 L32 46 L30 44 V38 L28 36 V31 Z" fill="url(#purpleGlow)" filter="url(#neon)"/>
+  <circle cx="32" cy="33" r="2.5" fill="#08080C"/>
 </svg>

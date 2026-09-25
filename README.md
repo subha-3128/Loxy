@@ -1,6 +1,20 @@
-# Loxy
+<p align="center">
+  <img src="./public/logo.png" alt="Loxy Logo" width="130" height="130" style="border-radius: 26px;" />
+</p>
 
-> Zero-knowledge personal password vault with client-side AES-GCM 256 encryption and developer-first aesthetics.
+<h1 align="center">Loxy</h1>
+
+<p align="center">
+  <strong>Zero-knowledge personal password vault with client-side AES-GCM 256 encryption and developer-first aesthetics.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/react-19-blue.svg" alt="React 19"></a>
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/typescript-6-blue.svg" alt="TypeScript 6"></a>
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/crypto-AES--GCM--256-8B5CF6.svg" alt="AES-GCM-256"></a>
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/database-Supabase--PostgreSQL-3ECF8E.svg" alt="Supabase"></a>
+  <a href="https://github.com/subha-3128/Loxy"><img src="https://img.shields.io/badge/tests-vitest-green.svg" alt="Vitest"></a>
+</p>
 
 ---
 

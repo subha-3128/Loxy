@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { ShieldCheck, Lock, KeyRound, AlertCircle } from 'lucide-react';
+import { ShieldCheck, AlertCircle } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 export const LoginView: React.FC = () => {
   const { signInWithGoogle, loading } = useAuth();
@@ -29,11 +30,8 @@ export const LoginView: React.FC = () => {
         <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
           {/* Logo Emblem */}
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#17171D] border border-[#27272F] flex items-center justify-center mb-5 shadow-inner shadow-purple-500/10 group">
-              <div className="relative">
-                <Lock className="w-7 h-7 text-[#8B5CF6] transition-transform group-hover:scale-105" />
-                <KeyRound className="w-3.5 h-3.5 text-white absolute -bottom-1 -right-1 bg-[#111116] rounded-full p-0.5" />
-              </div>
+            <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[#27272F] shadow-lg shadow-purple-500/10 mb-4 group transition-transform hover:scale-105">
+              <img src={logoImg} alt="Loxy Logo" className="w-full h-full object-cover" />
             </div>
 
             <h1 className="text-2xl font-bold tracking-tight text-[#F7F7FA] uppercase font-mono">

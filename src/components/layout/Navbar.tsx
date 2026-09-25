@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useVault } from '../../contexts/VaultContext';
 import { useToast } from '../ui/Toast';
-import { Lock, Search, LogOut, KeyRound, Menu } from 'lucide-react';
+import { Lock, Search, LogOut, Menu } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 interface NavbarProps {
   searchQuery: string;
@@ -38,8 +39,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#17171D] border border-[#27272F] flex items-center justify-center text-[#8B5CF6]">
-            <KeyRound className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg overflow-hidden border border-[#27272F] flex items-center justify-center shrink-0">
+            <img src={logoImg} alt="Loxy" className="w-full h-full object-cover" />
           </div>
           <span className="font-bold text-base tracking-wider font-mono uppercase text-[#F7F7FA]">
             LOXY
