@@ -1,0 +1,132 @@
+import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { ShieldCheck, Lock, KeyRound, Terminal, AlertCircle } from 'lucide-react';
+
+export const LoginView: React.FC = () => {
+  const { signInWithGoogle, signInDemo, isSupabaseConnected, loading } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const handleGoogleLogin = async () => {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await signInWithGoogle();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Authentication failed';
+      setError(msg);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeveloperDemo = () => {
+    signInDemo('alex.developer@loxy.vault', 'Alex Vance');
+  };
+
+  return (
+    <div className="min-h-screen bg-[#08080C] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden select-none">
+      {/* Subtle radial ambient background glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-950/20 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Brand Card */}
+        <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
+          {/* Logo Emblem */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-[#17171D] border border-[#27272F] flex items-center justify-center mb-5 shadow-inner shadow-purple-500/10 group">
+              <div className="relative">
+                <Lock className="w-7 h-7 text-[#8B5CF6] transition-transform group-hover:scale-105" />
+                <KeyRound className="w-3.5 h-3.5 text-white absolute -bottom-1 -right-1 bg-[#111116] rounded-full p-0.5" />
+              </div>
+            </div>
+
+            <h1 className="text-2xl font-bold tracking-tight text-[#F7F7FA] uppercase font-mono">
+              LOXY
+            </h1>
+            <p className="text-sm font-medium text-[#A1A1AA] mt-1.5">
+              Your keys. Your vault.
+            </p>
+            <p className="text-xs text-[#71717A] mt-2 max-w-xs leading-relaxed">
+              Zero-knowledge personal password vault. Client-side AES-GCM 256 encryption. Plaintext never leaves your machine.
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-3 rounded-lg bg-red-950/40 border border-red-800/50 flex items-start gap-2.5 text-xs text-red-200">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="space-y-3.5">
+            <button
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting || loading}
+              className="w-full h-11 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-medium text-sm flex items-center justify-center gap-3 transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {/* Google G SVG */}
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>{isSubmitting ? 'Authenticating...' : 'Continue with Google'}</span>
+            </button>
+
+            {/* Developer Fast Sandbox Login */}
+            <div className="pt-2">
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-[#27272F]" />
+                <span className="flex-shrink mx-3 text-[11px] text-[#71717A] uppercase tracking-wider">
+                  or
+                </span>
+                <div className="flex-grow border-t border-[#27272F]" />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDeveloperDemo}
+                className="w-full h-10 px-4 rounded-xl bg-[#17171D] hover:bg-[#1D1D24] text-[#F7F7FA] border border-[#27272F] text-xs font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Terminal className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                <span>Enter Developer Sandbox</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Security Features List */}
+          <div className="mt-8 pt-6 border-t border-[#27272F]/70 flex items-center justify-between text-[11px] text-[#A1A1AA]">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#22C55E]" />
+              PBKDF2 + AES-GCM
+            </span>
+            <span className="text-[#71717A]">•</span>
+            <span>Zero Plaintext</span>
+            <span className="text-[#71717A]">•</span>
+            <span>{isSupabaseConnected ? 'Supabase Connected' : 'Local Sandbox Mode'}</span>
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <p className="text-center text-xs text-[#71717A] mt-6">
+          Loxy never stores your master password on any server.
+        </p>
+      </div>
+    </div>
+  );
+};
