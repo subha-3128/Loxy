@@ -2,6 +2,7 @@
 
 @layer base {
   :root {
+    color-scheme: dark;
     --bg-base: #08080C;
     --surface: #111116;
     --surface-hover: #17171D;
@@ -25,14 +26,34 @@
     --warning-muted: rgba(245, 158, 11, 0.15);
   }
 
+  html.light,
+  html[data-theme="light"] {
+    color-scheme: light;
+    --bg-base: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-hover: #F1F5F9;
+    --surface-active: #E2E8F0;
+    --border: #E2E8F0;
+    --border-hover: #CBD5E1;
+    
+    --primary: #7C3AED;
+    --primary-hover: #6D28D9;
+    --primary-muted: rgba(124, 58, 237, 0.12);
+    
+    --text-main: #0F172A;
+    --text-muted: #475569;
+    --text-dim: #64748B;
+  }
+
   body {
     background-color: var(--bg-base);
     color: var(--text-main);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Custom scrollbar for modern sleek look */
+  /* Custom scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -66,4 +87,111 @@
 .focus-ring:focus-visible {
   outline: 2px solid #8B5CF6;
   outline-offset: 1px;
+}
+
+/* ==========================================================================
+   Light Mode Overrides (Crisp Apple/Stripe Developer Aesthetics)
+   ========================================================================== */
+
+html.light body,
+html.light .bg-\[\#08080C\] {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+html.light .bg-\[\#111116\] {
+  background-color: #FFFFFF !important;
+}
+
+html.light .bg-\[\#111116\]\/80 {
+  background-color: rgba(255, 255, 255, 0.90) !important;
+}
+
+html.light .bg-\[\#17171D\] {
+  background-color: #F1F5F9 !important;
+}
+
+html.light .bg-\[\#17171D\]\/60,
+html.light .bg-\[\#17171D\]\/40 {
+  background-color: rgba(241, 245, 249, 0.75) !important;
+}
+
+html.light .hover\:bg-\[\#17171D\]:hover,
+html.light .hover\:bg-\[\#17171D\]\/60:hover {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-\[\#1D1D24\],
+html.light .hover\:bg-\[\#1D1D24\]:hover {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .border-\[\#27272F\],
+html.light .border-\[\#27272F\]\/60,
+html.light .border-\[\#27272F\]\/50 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .divide-\[\#27272F\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .text-\[\#F7F7FA\] {
+  color: #0F172A !important;
+}
+
+html.light .hover\:text-\[\#F7F7FA\]:hover {
+  color: #0F172A !important;
+}
+
+html.light .text-\[\#A1A1AA\] {
+  color: #475569 !important;
+}
+
+html.light .text-\[\#71717A\] {
+  color: #64748B !important;
+}
+
+html.light .placeholder-\[\#71717A\]::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light input,
+html.light select,
+html.light textarea {
+  color: #0F172A !important;
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #7C3AED !important;
+  background-color: #FFFFFF !important;
+}
+
+html.light .glass-panel {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+html.light .shadow-2xl {
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.light .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05) !important;
+}
+
+html.light .bg-purple-950\/20 {
+  background-color: rgba(139, 92, 246, 0.08) !important;
 }

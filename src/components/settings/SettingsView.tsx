@@ -25,11 +25,16 @@ import {
   FileSpreadsheet,
   Smartphone,
   Laptop,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
 import { subscribeToInstallPrompt, promptPwaInstall, isAppInstalled } from '../../lib/pwa';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export const SettingsView: React.FC = () => {
   const { user, signOut, isSupabaseConnected } = useAuth();
+  const { theme, setTheme } = useTheme();
   const {
     autoLockMinutes,
     setAutoLockMinutes,
@@ -246,6 +251,68 @@ export const SettingsView: React.FC = () => {
               {user?.user_metadata?.full_name || 'Loxy User'}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Appearance & Theme Settings */}
+      <div className="bg-[#111116] border border-[#27272F] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sun className="w-5 h-5 text-[#8B5CF6]" />
+          <h2 className="text-sm font-semibold text-[#F7F7FA]">Appearance & Theme</h2>
+        </div>
+
+        <p className="text-xs text-[#A1A1AA] leading-relaxed">
+          Customize your interface appearance. Choose between sleek dark mode, clean high-contrast light mode, or match your device system settings.
+        </p>
+
+        <div className="grid grid-cols-3 gap-3 pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('dark');
+              showToast('Theme set to Dark', 'info');
+            }}
+            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
+                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
+            }`}
+          >
+            <Moon className="w-5 h-5" />
+            <span>Dark</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('light');
+              showToast('Theme set to Light', 'info');
+            }}
+            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-500 shadow-sm shadow-purple-500/10'
+                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
+            }`}
+          >
+            <Sun className="w-5 h-5" />
+            <span>Light</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('system');
+              showToast('Theme set to System', 'info');
+            }}
+            className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+              theme === 'system'
+                ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-purple-400 shadow-sm shadow-purple-500/10'
+                : 'bg-[#17171D] border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] hover:bg-[#1D1D24]'
+            }`}
+          >
+            <Monitor className="w-5 h-5" />
+            <span>System</span>
+          </button>
         </div>
       </div>
 

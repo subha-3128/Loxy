@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { VaultProvider, useVault } from './contexts/VaultContext';
 import { ToastProvider } from './components/ui/Toast';
@@ -294,12 +295,14 @@ const LoxyApp: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <VaultProvider>
-        <ToastProvider>
-          <LoxyApp />
-        </ToastProvider>
-      </VaultProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <VaultProvider>
+          <ToastProvider>
+            <LoxyApp />
+          </ToastProvider>
+        </VaultProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

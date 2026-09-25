@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useVault } from '../../contexts/VaultContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../ui/Toast';
-import { Lock, Search, LogOut, Menu, Download } from 'lucide-react';
+import { Lock, Search, LogOut, Menu, Download, Sun, Moon } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 import { subscribeToInstallPrompt, promptPwaInstall } from '../../lib/pwa';
 
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { user, signOut } = useAuth();
   const { lockVault, autoLockMinutes } = useVault();
+  const { isDark, toggleTheme } = useTheme();
   const { showToast } = useToast();
   const [canInstall, setCanInstall] = useState(false);
 
@@ -90,6 +92,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Install App</span>
           </button>
         )}
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-lg bg-[#17171D] hover:bg-[#1D1D24] border border-[#27272F] text-[#A1A1AA] hover:text-[#F7F7FA] transition-colors cursor-pointer"
+          title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+          aria-label="Toggle dark/light mode"
+        >
+          {isDark ? (
+            <Sun className="w-3.5 h-3.5 text-amber-400" />
+          ) : (
+            <Moon className="w-3.5 h-3.5 text-purple-600" />
+          )}
+        </button>
 
         {/* Quick Lock Button */}
         <button
