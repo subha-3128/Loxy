@@ -54,7 +54,7 @@ export const LoginView: React.FC = () => {
           <div>
             <button
               onClick={handleGoogleLogin}
-              disabled={isSubmitting || loading}
+              disabled={isSubmitting}
               className="tactile-btn w-full h-11 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-medium text-sm flex items-center justify-center gap-3 transition-all duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {/* Google G SVG */}

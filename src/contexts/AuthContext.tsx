@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithGoogle = async () => {
-    setLoading(true);
     try {
       await authService.signInWithGoogle();
       if (!isSupabaseConfigured) {
@@ -70,8 +69,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Google Sign In failed:', err);
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
