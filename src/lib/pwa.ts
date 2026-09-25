@@ -33,10 +33,26 @@ export function registerServiceWorker() {
               });
             }
           });
+
+          // Check for updates when PWA regains focus
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              reg.update().catch(() => {});
+            }
+          });
         })
         .catch(err => {
           console.error('[Loxy PWA] Service worker registration failed:', err);
         });
+
+      // Reload when new service worker takes control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
     });
 
     // Capture install prompt
